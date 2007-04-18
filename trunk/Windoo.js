@@ -3,9 +3,6 @@ Script: Windoo.js
 	Mootools draggable and resizable Window extension.
 	Contains <Windoo>, <Windoo.Manager>, <Windoo.Themes>.
 
-Version:
-	0.8.1
-
 License:
 	MIT-style license.
 
@@ -244,9 +241,10 @@ var Windoo = new Class({
 		var $row = function(prefix,contentClass){
 			return '<div class="' + prefix + '-left ' + theme.classPrefix + '-drag"><div class="' + prefix + '-right"><div class="' + contentClass + '"></div></div></div>';
 		}
-		var iefix = window.ie ? '<table><tr><td></td></tr></table>' : '';
+		var iefix = window.ie && this.options.type != 'iframe',
+			body = iefix ? '<table style="border-collapse:collapse;padding:0;cell-padding:0;"><tr><td></td></tr></table>' : '';
 		this.innerContent = '<div class="' + theme.classPrefix + '-frame">' + $row("top", "title") + $row("bot", "strut") + '</div>'
-			+ '<div class="' + theme.classPrefix + '-body">' + iefix + '</div>';
+			+ '<div class="' + theme.classPrefix + '-body">' + body + '</div>';
 		this.el.setHTML(this.innerContent).inject(this.options.container);
 		if(window.ie) this.el.addClass('ie');
 
@@ -257,7 +255,7 @@ var Windoo = new Class({
 		$extend(this.dom, {
 			title: this.dom.frame.getElement('.title'),
 			strut: this.dom.frame.getElement('.strut'),
-			content: window.ie ? this.dom.body.getElement('td') : this.dom.body
+			content: iefix ? this.dom.body.getElement('td') : this.dom.body
 		});
 
 		if (this.options.type == 'iframe'){
@@ -267,8 +265,7 @@ var Windoo = new Class({
 				'styles': {'width':'100%', 'height':'100%'}
 			});
 			this.dom.body.setStyle('overflow','hidden');
-			this.adopt(this.dom.iframe)
-				.setURL(this.options.url);
+			this.adopt(this.dom.iframe).setURL(this.options.url);
 		}
 		return this.buildButtons();
 	},
