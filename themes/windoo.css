@@ -1,6 +1,6 @@
 div.windoo {
 	position:absolute;
-	overflow:auto;
+	overflow:hidden;
 }
 div.windoo .windoo-drag {
 	cursor:move;
