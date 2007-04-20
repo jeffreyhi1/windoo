@@ -1,0 +1,13 @@
+#summary Drag.Multi, Drag.Resize, Windoo extension features.
+#labels Featured
+
+= Features =
+    * allows resize in 8 directions
+    * fully customizable resize directions
+    * works on Firefox, Opera, Safari, and IE 6, 7 (with some quirks yet)
+    * supports custom and container element limits for resize
+    * fully customizable Windoo themes
+    * preserve aspect ratio option
+    * multiple window managers
+    * supports iframe overlay for IE (workaround to <select> bug)
+    * generates valid XHTML strict code 
