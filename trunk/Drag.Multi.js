@@ -3,9 +3,6 @@ Script: Drag.Multi.js
 	Mootools Drag.Base class extension which adds support for modifying multiple css properties of different elements simultaneously.
 	Contains <Drag.Multi>.
 
-Version:
-	0.7.7
-
 License:
 	MIT-style license.
 
@@ -145,11 +142,12 @@ Drag.Multi = Drag.Base.extend({
 			y - array with start and end limit relative to modifiers.y
 
 		bind:
-			x -
-			y -
+			x, y - optional, Bind object. if set change $(element) modifier value according to changes in Bind object
 
 		fn:
-			x - {
+			x, y - objects with two properties: direct and inverse functions:
+				(start code)
+				{
 					step: function(start, current, direction){
 						return direction * current - start;
 					},
@@ -157,8 +155,7 @@ Drag.Multi = Drag.Base.extend({
 						return (start + current) / direction;
 					}
 				}
-			y - 
-		.....................
+				(end code)
 
 	*/
 
@@ -208,6 +205,7 @@ Drag.Multi = Drag.Base.extend({
 	Arguments:
 		el - the $(element) to stop transformations for.
 	*/
+
 	remove: function(el){
 		el = $(el);
 		for (var z in this.modifiers){

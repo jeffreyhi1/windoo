@@ -17,7 +17,8 @@ TODO:
 	- more themes
 	- ajax content
 	- refactor action effects (make effects customizable)
-	- shade/minimize
+	- manage minimized windows with window manager
+	- window shade and popup menu
 	- ghost_drag
 */
 
@@ -49,7 +50,7 @@ Options:
 	draggable - boolean, defines if the window is draggable. default true;
 	url - optional, source URL for 'iframe' and 'ajax' window types to load at start;
 	class - opional, additional custom window element class name;
-	theme - optional, defines window theme (see Windoo.Themes). default 'windoo';
+	theme - optional, defines window theme (see Windoo.Themes). defaults to 'windoo';
 	wm - optional, defines window manager (see Windoo.Manager) to attach window to;
 	effects - object, see Effects below
 
@@ -58,15 +59,16 @@ Ghost:
 	move - boolean, ghost moving. default to false;
 
 Buttons:
+	menu - display window control menu button. defaults to false;
 	close - display close window control button. default to true;
 	shade - display shade window control button. default to false;
 	minimize - display minimize window control button. default to true;
 	maximize - display maximize window control button. default to true;
 
 Effects:
-	close - 
-	hide - 
-	show - 
+	close - ?
+	hide - ?
+	show - ?
 
 Events:
 	onFocus - optional, function to execute when window obtains focus;
@@ -123,6 +125,7 @@ var Windoo = new Class({
 		
 		position: 'center',
 		buttons: {
+			menu: false,
 			close: true,
 			shade: false,
 			minimize: true,
@@ -142,7 +145,7 @@ var Windoo = new Class({
 		url: false,
 
 		'class': '',
-		theme: 'windoo',
+		theme: 'alphacube',
 		wm: false, // window manager
 
 		effects: {
@@ -182,13 +185,13 @@ var Windoo = new Class({
 	},
 
 	initialize: function(options){
-		var self=this;
-		this.fx={};
+		var self = this;
+		this.fx = {};
+		this.zIndex = 0;
 
-		this.options.id = 'windoo-'+(new Date().getTime());
+		this.options.id = 'windoo-' + (new Date().getTime());
 		this.setOptions(options);
-		if ($type(this.options.theme) == 'string') this.options.theme = Windoo.Themes[this.options.theme];
-		var theme = this.options.theme;
+		var theme = this.theme = $type(this.options.theme) == 'string' ? Windoo.Themes[this.options.theme] : this.options.theme;
 
 		this.options.container = $(this.options.container || document.body);
 		if (this.options.restrictDrag) this.options.dragContainer = this.options.container;
@@ -220,7 +223,7 @@ var Windoo = new Class({
 	*/
 
 	buildDOM: function(){
-		var theme = this.options.theme;
+		var theme = this.theme, _p = theme.classPrefix;
 		this.el = new Element('div', {
 			'id': this.options.id,
 			'class': theme.className,
@@ -238,15 +241,15 @@ var Windoo = new Class({
 
 		if(this.options['class']) this.el.addClass(this.options['class']);
 
-		var $row = function(prefix,contentClass){
-			return '<div class="' + prefix + '-left ' + theme.classPrefix + '-drag"><div class="' + prefix + '-right"><div class="' + contentClass + '"></div></div></div>';
+		var $row = function(prefix, contentClass){
+			return '<div class="' + prefix + '-left ' + _p + '-drag"><div class="' + prefix + '-right"><div class="' + contentClass + '"></div></div></div>';
 		}
 		var iefix = window.ie && this.options.type != 'iframe',
 			body = iefix ? '<table style="border-collapse:collapse;padding:0;cell-padding:0;"><tr><td></td></tr></table>' : '';
-		this.innerContent = '<div class="' + theme.classPrefix + '-frame">' + $row("top", "title") + $row("bot", "strut") + '</div>'
-			+ '<div class="' + theme.classPrefix + '-body">' + body + '</div>';
+		this.innerContent = '<div class="' + _p + '-frame">' + $row("top", "title") + $row("bot", "strut") + '</div>'
+			+ '<div class="' + _p + '-body">' + body + '</div>';
 		this.el.setHTML(this.innerContent).inject(this.options.container);
-		if(window.ie) this.el.addClass('ie');
+		if(window.ie) this.el.addClass(_p + '-' + theme.name + '-ie');
 
 		this.dom = {
 			frame: this.el.getFirst(),
@@ -261,13 +264,13 @@ var Windoo = new Class({
 		if (this.options.type == 'iframe'){
 			this.dom.iframe = new Element('iframe', {
 				'frameborder': '0',
-				'class': theme.classPrefix + '-body',
+				'class': _p + '-body',
 				'styles': {'width':'100%', 'height':'100%'}
 			});
 			this.dom.body.setStyle('overflow','hidden');
 			this.adopt(this.dom.iframe).setURL(this.options.url);
 		}
-		return this.buildButtons();
+		return this.buildShadow().buildButtons();
 	},
 
 	/*
@@ -276,8 +279,8 @@ var Windoo = new Class({
 	*/
 
 	buildButtons: function(){
-		var self = this, buttons = this.options.buttons, theme = this.options.theme;
-		var btnClass = theme.classPrefix + "-button " + theme.classPrefix;
+		var self = this, buttons = this.options.buttons, theme = this.theme, _p = theme.classPrefix;
+		var btnClass = _p + "-button " + _p;
 
 		var action = function(name){ return function(ev){ new Event(ev).stop(); self[name](); }; }
 		if(buttons.close)
@@ -292,15 +295,42 @@ var Windoo = new Class({
 		if(buttons.shade)
 			this.dom.minimize = new Element('a', { 'class': btnClass + '-shade', href:'#', title:'Shade' }).setHTML('-')
 				.addEvent('click',action('shade')).inject(this.el);
+		if(buttons.menu)
+			this.dom.menu = new Element('a', { 'class': btnClass + '-menu', href:'#', title:'Menu' }).setHTML('v')
+				.addEvent('click',action('openmenu')).inject(this.el);
+		return this;
+	},
+
+	/*
+	Property: buildShadow
+		internal. Constructs window shadow element
+	*/
+
+	buildShadow: function(){
+		var theme = this.theme;
+		if (!theme.shadow) return this;
+		this.shadow = new Element('div', {
+			'styles': {'display': 'none'},
+			'class': theme.classPrefix + '-shadow-' + theme.shadow
+		}).injectAfter(this.el);
+		if (theme.shadow == 'image'){
+			var $row = function(name){
+				var els = ['l','r','m'].map(function(e){ return new Element('div', {'class': e}); });
+				var el = new Element('div', {'class': name});
+				return el.adopt.apply(el,els);
+			};
+			this.shadow.adopt($row('top'),$row('bot'));
+		}
 		return this;
 	},
 
 	makeResizable: function(){
-		var self = this, theme = this.options.theme;
+		var self = this, theme = this.theme;
 		this.fx.resize = this.el.makeResizable({
 			ghostClass: theme.ghostClass,
 			hoverClass: theme.hoverClass,
 			classPrefix: theme.classPrefix + '-sizer ' + theme.classPrefix + '-',
+			shadeBackground: theme.shadeBackground,
 
 			ghost: this.options.ghost.resize,
 			resizeLimit: this.options.resizeLimit,
@@ -310,10 +340,11 @@ var Windoo = new Class({
 				self.fireEvent('onBeforeResize', this).focus();
 			},
 			onStart: function(fx){
-				self.fireEvent('onStartResize', this);
 				if (self.maximized) fx.stop();
+				else self.fireEvent('onStartResize', this);
 			},
 			onResize: function(){
+				if (!self.options.ghost.resize) self.fix();
 				self.fireEvent('onResize', this);
 			},
 			onComplete: function(){
@@ -344,19 +375,27 @@ var Windoo = new Class({
 			container: this.options.dragContainer,
 			limit: {'x': [0], 'y': [0]},
 			onBeforeStart: function(){
+				this.shade = window.shade({ styles:{
+					'cursor': this.options.handle.getStyle('cursor'),
+					'background': self.theme.shadeBackground,
+					'z-index': 1000
+				}});
 				self.fireEvent('onBeforeDrag', this).focus();
 			},
 			onStart: function(){
-				self.fireEvent('onStartDrag', this);
+				if (self.maximized) this.stop();
+				else self.fireEvent('onStartDrag', this);
 			},
 			onDrag: function(){
-				self.fix().fireEvent('onDrag', this);
+				if (!self.options.ghost.drag) self.fix();
+				self.fireEvent('onDrag', this);
 			},
 			onComplete: function(){
-				self.fireEvent('onDragComplete', this);
+				this.shade.remove();
+				self.fix().fireEvent('onDragComplete', this);
 			}
 		};
-		this.el.getElements('.' + this.options.theme.classPrefix + '-drag').each(function(d){
+		this.el.getElements('.' + this.theme.classPrefix + '-drag').each(function(d){
 			opts.handle = d;
 			fx.push(this.el.makeDraggable(opts));
 		}, this);
@@ -455,9 +494,10 @@ var Windoo = new Class({
 	*/
 
 	hide: function(noeffect){
+		if (this.shadow) this.shadow.setStyle('display', 'none');
 		return this.effect('hide', noeffect, function(){
-			this.el.setStyle('visibility', 'hidden').fix(true);
-			this.fireEvent('onHide');
+			this.el.setStyle('visibility', 'hidden');
+			this.fix(true).fireEvent('onHide');
 		}.bind(this));
 	},
 
@@ -479,11 +519,25 @@ var Windoo = new Class({
 
 	/*
 	Property: fix
-		Internal. Update window overlay
+		Internal. Update window overlay and shadow
 	*/
 
 	fix: function(hide){
 		this.el.fixOverlay(hide);
+		return this.fixShadow(hide);
+	},
+
+	fixShadow: function(hide){
+		if (this.shadow){
+			if (hide){
+				this.shadow.setStyle('display', 'none');
+			} else if (!this.maximized){
+				var pos = this.el.getCoordinates(), pad = this.theme.shadowDisplace;
+				this.shadow.setStyles({'display': '', 'z-index': '' + (this.zIndex - 1),
+					'left': pos.left + pad.left, 'top': pos.top + pad.top,
+					'width': pos.width + pad.width, 'height': pos.height + pad.height});
+			}
+		}
 		return this;
 	},
 
@@ -514,7 +568,7 @@ var Windoo = new Class({
 
 	setSize: function(width, height){
 		this.el.setStyles({'width': width, 'height': height});
-		var padding = this.options.theme.padding;
+		var padding = this.theme.padding;
 		this.dom.strut.setStyle('height', height - padding[0]);
 		this.dom.body.setStyle('height', height - padding[0] - padding[2]);
 		return this.fix();
@@ -565,10 +619,11 @@ var Windoo = new Class({
 	*/
 
 	close: function(noeffect){
+		if (this.shadow) this.shadow.setStyle('display', 'none');
 		return this.effect('close', noeffect, function(){
 			this.fireEvent('onClose');
 			this.wm.unregister(this);
-			if (this.el.fixOverlayElement) $(this.el.fixOverlayElement).remove();
+			if (this.shadow) this.shadow.empty().remove();
 			this.el.empty().remove();
 		}.bind(this));
 	},
@@ -588,53 +643,56 @@ var Windoo = new Class({
 			if (limit.length > 1 && value > limit[1]) return limit[1];
 			return value;
 		};
-		var theme = this.options.theme;
+		var klass = [this.theme.classPrefix, this.theme.name, 'maximized'].join('-')
+			+ ' ' + this.theme.classPrefix + '-maximized';
+		this.maximized = !this.maximized;
+		this.minimized = false;
 		if (this.maximized){
-			var state = this.$restoreState.outer;
-			this.el.removeClass(theme.classPrefix + '-maximized');
-			this.setSize(state.width, state.height).setPosition(state.left, state.top);
-			this.maximized = false;
-			this.fireEvent('onRestore', 'maximize');
-		} else {
-			this.$restoreState = this.getState();
+			this.$restoreMaxi = this.getState();
 			var container = this.options.container;
 			if (container === document.body) container = window;
 			var s = container.getSize(), limit = this.options.resizeLimit;
 			if (limit) for (var z in limit) s.size[z] = bound(s.size[z], limit[z]);
 			this.setSize(s.size.x, s.size.y).setPosition(s.scroll.x, s.scroll.y);
-			this.maximized = true;
-			this.el.addClass(theme.classPrefix + '-maximized');
+			this.el.addClass(klass);
 			this.fireEvent('onMaximize');
+		} else {
+			this.el.removeClass(klass);
+			this.restoreState(this.$restoreMaxi).fireEvent('onRestore', 'maximize');
 		}
 		return this;
 	},
 
 	/*
 	Property: minimize
-		TODO. Toggle minimized window state
+		Toggle minimized window state (FIXME: add WM layout for minimized windows)
 
 	Arguments:
 		noeffect - optional, if true, toggle window state immediately without effect
 	*/
 
 	minimize: function(noeffect){
-		if (!this.minimized){
-			/*this.dom.content.oldHeight = this.dom.content.getSize().size.y;
-			this.middleTableOldHeight = $('middle_' + this.options.id).getSize().size.y;
-
-			this.dom.content.effect('height').start(0);
-			this.el.effect('height').start(48);
-			$('middle_' + this.options.id).effect('height').start(0);*/
-			this.minimized = true;
-			this.fireEvent('onMinimize');
-		} else {
-			/*this.dom.content.effect('height').start(this.dom.content.oldHeight);
-			this.el.effect('height').start(this.options.height);
-			$('middle_' + this.options.id).effect('height').start(this.middleTableOldHeight);*/
-			this.minimized = false;
+		var klass = [this.theme.classPrefix, this.theme.name, 'minimized'].join('-')
+			+ ' ' + this.theme.classPrefix + '-minimized';
+		this.minimized = !this.minimized;
+		if (this.minimized){
+			this.$restoreMini = this.getState();
+			var container = this.options.container;
+			if (container === document.body) container = window;
+			var s = container.getSize(), pad = this.theme.padding, height = pad[0] + pad[2];
+			this.setSize('auto', height).setPosition(s.scroll.x + 10, s.scroll.y + s.size.y - height - 10);
+			this.el.addClass(klass);
 			this.fireEvent('onRestore', 'minimize');
+		} else {
+			this.el.removeClass(klass);
+			this.restoreState(this.$restoreMini).fireEvent('onMinimize');
 		}
 		return this.fix();
+	},
+
+	restoreState: function(state){
+		state = state.outer;
+		return this.setSize(state.width, state.height).setPosition(state.left, state.top);
 	},
 
 	/*
@@ -646,8 +704,18 @@ var Windoo = new Class({
 	*/
 
 	shade: function(noeffect){
+		//### TODO
 		this.fireEvent('onShade');
 		return this.fix();
+	},
+
+	/*
+	Property: shade
+		TODO. Toggle window popup menu
+	*/
+
+	openmenu: function(){
+		return this;
 	},
 
 	/*
@@ -662,6 +730,7 @@ var Windoo = new Class({
 		this.zIndex = z;
 		this.el.setStyle('zIndex', z);
 		if (this.el.fixOverlayElement) $(this.el.fixOverlayElement).setStyle('zIndex', z - 1);
+		if (this.shadow) this.shadow.setStyle('zIndex', z - 1);
 		if (this.fx.resize) this.fx.resize.options.zIndex = z + 1;
 		return this;
 	},
@@ -672,7 +741,7 @@ var Windoo = new Class({
 	*/
 
 	focus: function(){
-		this.el.removeClass(this.options.theme.classPrefix + '-blur');
+		this.el.removeClass(this.theme.classPrefix + '-blur');
 		this.wm.focus(this);
 		return this;
 	},
@@ -683,7 +752,7 @@ var Windoo = new Class({
 	*/
 
 	blur: function(){
-		this.el.addClass(this.options.theme.classPrefix + '-blur');
+		this.el.addClass(this.theme.classPrefix + '-blur');
 		if (this.wm.blur(this)) this.fireEvent('onBlur');
 		return this;
 	},
@@ -695,12 +764,6 @@ var Windoo = new Class({
 
 	bringTop: function(){
 		this.setZIndex(this.wm.maxZIndex());
-		/*if (window.gecko && navigator.appVersion.test(/ackintosh/)){
-			var p = this.el.getParent(), cc = this.el.clone(true);
-			p.adopt(cc);
-			this.el.setStyle('visibility','hidden').remove().inject(p).setStyle('visibility','visible');
-			cc.remove().empty();
-		}*/
 		return this;
 	},
 
@@ -710,8 +773,6 @@ var Windoo = new Class({
 	*/
 
 	bringBottom: function(){
-		//###############
-		alert('TODO - window groups')
 		return this;
 	}
 
@@ -833,14 +894,31 @@ Class: Windoo.Themes
 */
 
 Windoo.Themes = {
-	windoo: {
-		'padding': [28, 7, 33, 7],
-		'resizeLimit': {'x': [175], 'y': [61]},
-		'className': 'windoo',
+	aero: {
+		'name': 'aero',
+		'padding': [28, 7, 30, 7],
+		'resizeLimit': {'x': [175], 'y': [58]},
+		'className': 'windoo windoo-aero',
 		'sizerClass': 'sizer',
 		'classPrefix': 'windoo',
-		'ghostClass': 'windoo-ghost windoo-hover',
-		'hiverClass': 'windoo-hover'
+		'ghostClass': 'windoo-ghost windoo-aero-ghost windoo-hover',
+		'hoverClass': 'windoo-hover',
+		'shadow': 'simple window-aero-shadow-simple',
+		'shadeBackground': 'transparent url(windoo/s.gif)',
+		'shadowDisplace': {'left': 3, 'top': 3, 'width': 0, 'height': 0}
+	},
+	alphacube: {
+		'name': 'alphacube',
+		'padding': [22, 10, 15, 10],
+		'resizeLimit': {'x': [275], 'y': [37]},
+		'className': 'windoo windoo-alphacube',
+		'sizerClass': 'sizer',
+		'classPrefix': 'windoo',
+		'ghostClass': 'windoo-ghost windoo-alphacube-ghost windoo-hover',
+		'hoverClass': 'windoo-hover',
+		'shadow': 'simple window-alphacube-shadow-simple',
+		'shadeBackground': 'transparent url(windoo/s.gif)',
+		'shadowDisplace': {'left': 3, 'top': 3, 'width': 0, 'height': 0}
 	}
 };
 

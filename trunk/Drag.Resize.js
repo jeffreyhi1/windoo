@@ -3,9 +3,6 @@ Script: Drag.Resize.js
 	Mootools Drag.Resize: 8-way resizable element extension.
 	Contains <Drag.Resize>, <Element::makeResizable>.
 
-Version:
-	0.7.8
-
 License:
 	MIT-style license.
 
@@ -18,6 +15,7 @@ Copyright:
  * http://dev.digitarald.de/js/moo.dev.extend.js
  */
 Element.extend({
+
 	fixOverlay: function(hide){
 		if (!window.ie) return false;
 		if (!this.fixOverlayElement) this.fixOverlayElement = new Element('iframe', {
@@ -30,9 +28,27 @@ Element.extend({
 		return this.fixOverlayElement.setStyles({'display' : '', 'z-index': '' + (z - 1),
 			'left': pos.left + 'px', 'top': pos.top + 'px',
 			'width': pos.width + 'px', 'height': pos.height + 'px'});
+	},
+
+	remove: function(){
+		if (this.fixOverlayElement) this.fixOverlayElement.remove();
+		return this.parentNode.removeChild(this);
 	}
+
 });
 
+window.shade = function(options){
+	var size = this.getSize().size;
+	var shade = new Element('div', $merge({ styles:{
+		'position': 'absolute',
+		'top': 0,
+		'left': 0,
+		'width': size.x,
+		'height': size.y
+	}}, options)).inject(document.body);
+	shade.fixOverlay();
+	return shade;
+};
 
 Drag.Multi.$direction = {
 	east: { 'x':1 },
@@ -114,7 +130,7 @@ Drag.Resize = new Class({
 		ghostClass: 'ghost-sizer sizer-visible',
 		classPrefix: 'sizer sizer-',
 		hoverClass: 'sizer-visible',
-		shadeBackground: 'transparent url(../css/windoo/s.gif)',
+		shadeBackground: 'transparent url(s.gif)',
 
 		onBuild: Class.empty,
 		onBeforeStart: Class.empty,
@@ -180,20 +196,11 @@ Drag.Resize = new Class({
 			onBeforeStart: function(){
 				self.fireEvent('onBeforeStart', this);
 				self.started = true;
-				var size = window.getSize().size;
-				this.shade = new Element('div', {
-					styles:{
-						'position': 'absolute',
-						'top': 0,
-						'left': 0,
-						'width': size.x,
-						'height': size.y,
-						'cursor': this.options.handle.getStyle('cursor'),
-						'background': self.options.shadeBackground,
-						'z-index': self.options.zIndex + 1
-					}
-				}).inject(document.body);
-				this.shade.fixOverlay();
+				this.shade = window.shade({ styles:{
+					'cursor': this.options.handle.getStyle('cursor'),
+					'background': self.options.shadeBackground,
+					'z-index': self.options.zIndex + 1
+				}});
 
 				if (self.ghost){
 					var ce = self.el.getCoordinates();
@@ -225,7 +232,6 @@ Drag.Resize = new Class({
 			onComplete: function(){
 				self.started = false;
 				if (self.options.hoverClass) self.el.removeClass(self.options.hoverClass);
-				if (this.shade.fixOverlayElement) this.shade.fixOverlayElement.remove();
 				this.shade.remove();
 				this.shade = null;
 				if (self.ghost){

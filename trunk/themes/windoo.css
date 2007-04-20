@@ -1,3 +1,4 @@
+/* Windoo main window and frames */
 div.windoo {
 	position:absolute;
 	overflow:hidden;
@@ -5,43 +6,47 @@ div.windoo {
 div.windoo .windoo-drag {
 	cursor:move;
 }
-
-div.windoo-shadow {
-	background:#CCCCCC;
-	opacity:.3;
-	filter:alpha(30);
-}
-
-div.windoo-body {
+div.windoo div.windoo-body {
 	position:relative;
 	overflow:auto;
 	width:auto;
-	margin:28px 10px 0;
 	padding:0;
 	text-align:left;
-	background:#fff;
-	border:solid #8DB2E3 1px;
-	border-style:none solid solid;
 }
-div.ie .windoo-body {
-	top:28px;
+div.windoo div.windoo-frame {
+	position:absolute;
+	width:100%;
+	height:100%;
+	top:0;
+	left:0;
+}
+div.windoo div.windoo-frame .title {
+	overflow:hidden;
+	white-space:nowrap;
 }
 
-div.windoo-ghost {
-	border:dotted #0d0 2px;
+/* Windoo buttons */
+div.windoo a.windoo-button {
 	position:absolute;
-	-moz-box-sizing: border-box;
-	box-sizing: border-box;
-	-moz-user-select: none;
+	display:block;
+	text-align:center;
+	text-decoration:none;
+	overflow:hidden;
+	text-indent:-1000em;
+	outline:none;
+	z-index:10;
 }
+.windoo-maximized .windoo-sizer, .windoo-minimized .windoo-sizer, .windoo-shaded .windoo-sizer {
+	display:none !important;
+}
+
+/* Windoo sizers */
 div.windoo .windoo-sizer {
 	position:absolute;
 	overflow:hidden;
 	background:url('windoo/s.gif');
 	z-index:5;
 	-moz-user-select: none;
-	opacity:1;
-	filter:alpha(1);
 }
 div.windoo .windoo-north {
 	top:0;
@@ -96,111 +101,28 @@ div.windoo .windoo-sw {
 div.windoo .windoo-se {
 	bottom:0;
 	right:0;
-	width:11px;
-	height:11px;
 	cursor:se-resize;
-	background: url(windoo/se-handle.gif) no-repeat left top;
 }
 
-
-div.windoo-frame {
+/* Windoo ghost sizer */
+div.windoo-ghost {
+	border:dotted #0d0 2px;
 	position:absolute;
-	width:100%;
-	height:100%;
-	top:0;
-	left:0;
-	opacity:0.85;
-	filter:alpha(85);
-}
-div.windoo-frame .top-left {
-	padding:0 0 0 3px;
-	background:transparent url(windoo/hd-sprite.gif) no-repeat scroll left -41px;
-}
-div.windoo-frame .top-right {
-	padding:0 3px 0 0;
-	background:transparent url(windoo/hd-sprite.gif) no-repeat scroll right 0;
-}
-div.windoo-frame .title {
-	background:#AABACA url(windoo/hd-sprite.gif) repeat-x scroll 0 -82px;
-	color:#15428B;
-	text-align:left;
-	padding:7px 25px 5px .5em;
-	overflow:hidden;
-	white-space:nowrap;
-	line-height:15px;
-	height:15px;
-	font:bold 13px "Sans Serif", Tahoma, Verdana, Helvetica;
-}
-div.windoo-frame .bot-left {
-	padding:0 0 0 7px;
-	background:transparent url(windoo/bg-left.gif) no-repeat scroll left bottom;
-}
-div.windoo-frame .bot-right {
-	padding:0 7px 0 0;
-	background:transparent url(windoo/bg-right.gif) no-repeat scroll right bottom;
-}
-div.windoo-frame .strut {
-	background:transparent url(windoo/bg-center.gif) repeat-x scroll center bottom;
-	text-align:left;
-	overflow:hidden;
-	white-space:nowrap;
+	-moz-user-select: none;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
 }
 
-
-
-div.windoo a.windoo-button {
+/* Windoo simple shadow */
+div.windoo-shadow-simple {
 	position:absolute;
-	display:block;
-	width:23px;
-	height:23px;
-	text-align:center;
-	line-height:23px;
-	text-decoration:none;
-	
+	padding:0;
 	overflow:hidden;
-	font-size:9pt;
-	
-	background-color:transparent;
-	
-	text-indent:-1000em;
-	outline:none;
-	
-	z-index:10;
-}
-div.windoo a.windoo-button:hover {
-	filter:alpha(70);
-	opacity:0.7;
+	background:#ccc;
+	opacity:.4;
+	filter:Alpha(opacity=40);
+	-moz-border-radius:4px;
+	border-radius:4px;
 }
 
-div.windoo a.windoo-close {
-	top:1px;
-	right:10px;
-	background:url('windoo/button-close-focus.gif') 0 0 no-repeat;
-}
-div.windoo a.windoo-maximize {
-	top:1px;
-	right:33px;
-	background:url('windoo/button-max-focus.gif') 0 0 no-repeat;
-}
-div.windoo a.windoo-minimize {
-	top:1px;
-	right:56px;
-	background:url('windoo/button-min-focus.gif') 0 0 no-repeat;
-}
-div.windoo a.windoo-shade {
-	top:1px;
-	right:79px;
-	background:url('windoo/button-shade-focus.gif') 0 0 no-repeat;
-}
-
-
-
-
-.windoo-maximized .windoo-sizer, .windoo-minimized .windoo-sizer, .windoo-shaded .windoo-sizer {
-	display:none !important;
-}
-
-.windoo-maximized a.windoo-maximize {
-	background-color:red;
-}
 
