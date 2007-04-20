@@ -1,7 +1,6 @@
 #summary Drag.Multi, Drag.Resize, Windoo extension features.
-#labels Featured
+#labels Featured,Phase-Design
 
-= Features =
     * allows resize in 8 directions
     * fully customizable resize directions
     * works on Firefox, Opera, Safari, and IE 6, 7 (with some quirks yet)
