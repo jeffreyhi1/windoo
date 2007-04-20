@@ -1,7 +1,5 @@
-#summary `Drag.Multi`, `Drag.Resize` and `Windoo` extension dependencies on Mootools components.
-#labels Featured
-
-= Extension dependencies on Mootools components =
+#summary Drag.Multi, Drag.Resize, and Windoo extension dependencies on Mootools components.
+#labels Featured,Phase-Requirements
 
 * Drag.Multi: 
 
@@ -14,7 +12,6 @@
 * Windoo: 
 
 `Dom`, `Window.Size`, `Drag.Base`, `Drag.Move`, `Fx.Styles`, `Assets` (for Firefox/Mac scrollbar fix only), and their dependencies.
-
 
 
 
