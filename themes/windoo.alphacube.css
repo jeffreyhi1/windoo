@@ -78,6 +78,15 @@ div.windoo-alphacube a.windoo-minimize {
 div.windoo-alphacube a.windoo-minimize:hover {
 	background-position:0 -38px;
 }
+div.windoo-alphacube a.windoo-restore {
+	display:none;
+	top:0px;
+	right:15px;
+	background-position:-46px 0;
+}
+div.windoo-alphacube a.windoo-restore:hover {
+	background-position:-46px -38px;
+}
 div.windoo-alphacube a.windoo-shade {
 	top:0px;
 	right:84px;
@@ -109,13 +118,6 @@ div.windoo-alphacube-minimized {
 div.windoo-alphacube-minimized div.windoo-frame .title {
 	text-align:left;
 	padding:5px 0 0;
-}
-div.windoo-alphacube-minimized a.windoo-button {
-	display:none;
-}
-div.windoo-alphacube-minimized a.windoo-minimize {
-	display:block;
-	right:15px;
 }
 
 div.window-alphacube-shadow-simple {
