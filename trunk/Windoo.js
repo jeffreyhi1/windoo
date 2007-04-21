@@ -14,12 +14,11 @@ Note:
 
 TODO:
 	- modals / confirm / alert
-	- more themes
-	- ajax content
 	- refactor action effects (make effects customizable)
 	- manage minimized windows with window manager
-	- window shade and popup menu
 	- ghost_drag
+	- window shade and popup menu
+	- more themes
 */
 
 /*
@@ -37,33 +36,34 @@ Options:
 	title - optional, window title;
 	resizeLimit - optional, window resize limits (see Drag.Resize::limit option);
 	ghost - object, see Ghost below;
-	position - optional, window position method (one of 'center', 'cascade' - TODO). if not false top and left options are ignored. default 'center';
+	position - optional, window position method (one of 'center', 'cascade' - TODO). if not false top and left options are ignored. defaults to 'center';
 	buttons - object, see Buttons below;
-	container - optional, window container element. default to parentNode;
-	dragContainer - optional, defines window drag container. default container option;
-	restrictDrag - boolean, restrict windows drag to the container. default false;
-	resizeContainer - optional, defines window resize container. default Options::container;
-	restrictResize - boolean, restrict windows resize to the container. default false;
-	type - optional, window content type. one of 'dom', 'iframe', 'ajax'. default 'dom';
-	modal - boolean, defines if the window is modal. default false;
-	resizable - boolean, defines if the window is resizable. default true;
-	draggable - boolean, defines if the window is draggable. default true;
+	container - optional, window container element. defaults to parentNode;
+	dragContainer - optional, defines window drag container. defaults to container option;
+	restrictDrag - boolean, restrict windows drag to the container. defaults to false;
+	resizeContainer - optional, defines window resize container. defaults to Options::container;
+	restrictResize - boolean, restrict windows resize to the container. defaults to false;
+	type - optional, window content type. one of 'dom', 'iframe'. defaults to 'dom';
+	modal - boolean, defines if the window is modal. defaults to false;
+	resizable - boolean, defines if the window is resizable. defaults to true;
+	draggable - boolean, defines if the window is draggable. defaults to true;
 	url - optional, source URL for 'iframe' and 'ajax' window types to load at start;
 	class - opional, additional custom window element class name;
 	theme - optional, defines window theme (see Windoo.Themes). defaults to 'windoo';
+	shadow - optional, if false turns off window shadow event if such is defined in theme. defaults to true;
 	wm - optional, defines window manager (see Windoo.Manager) to attach window to;
 	effects - object, see Effects below
 
 Ghost:
-	resize - boolean, ghost resiaing. default to false;
-	move - boolean, ghost moving. default to false;
+	resize - boolean, ghost resiaing. defaults to false;
+	move - boolean, ghost moving. defaults to false;
 
 Buttons:
 	menu - display window control menu button. defaults to false;
-	close - display close window control button. default to true;
-	shade - display shade window control button. default to false;
-	minimize - display minimize window control button. default to true;
-	maximize - display maximize window control button. default to true;
+	close - display close window control button. defaults to true;
+	shade - display shade window control button. defaults to false;
+	minimize - display minimize window control button. defaults to true;
+	maximize - display maximize window control button. defaults to true;
 
 Effects:
 	close - ?
@@ -146,6 +146,7 @@ var Windoo = new Class({
 
 		'class': '',
 		theme: 'alphacube',
+		shadow: true,
 		wm: false, // window manager
 
 		effects: {
@@ -260,12 +261,13 @@ var Windoo = new Class({
 			strut: this.dom.frame.getElement('.strut'),
 			content: iefix ? this.dom.body.getElement('td') : this.dom.body
 		});
+		this.dom.title.addEvent('dblclick', this.maximize.bind(this));
 
 		if (this.options.type == 'iframe'){
 			this.dom.iframe = new Element('iframe', {
 				'frameborder': '0',
 				'class': _p + '-body',
-				'styles': {'width':'100%', 'height':'100%'}
+				'styles': {'width': '100%', 'height': '100%'}
 			});
 			this.dom.body.setStyle('overflow','hidden');
 			this.adopt(this.dom.iframe).setURL(this.options.url);
@@ -289,9 +291,12 @@ var Windoo = new Class({
 		if(buttons.maximize)
 			this.dom.maximize = new Element('a', { 'class': btnClass + '-maximize', href:'#', title:'Maximize' }).setHTML('O')
 				.addEvent('click',action('maximize')).inject(this.el);
-		if(buttons.minimize)
+		if(buttons.minimize){
 			this.dom.minimize = new Element('a', { 'class': btnClass + '-minimize', href:'#', title:'Minimize' }).setHTML('_')
 				.addEvent('click',action('minimize')).inject(this.el);
+			this.dom.restore = new Element('a', { 'class': btnClass + '-restore', href:'#', title:'Restore' }).setHTML('O')
+				.addEvent('click',action('minimize')).inject(this.el);
+		}
 		if(buttons.shade)
 			this.dom.minimize = new Element('a', { 'class': btnClass + '-shade', href:'#', title:'Shade' }).setHTML('-')
 				.addEvent('click',action('shade')).inject(this.el);
@@ -308,7 +313,7 @@ var Windoo = new Class({
 
 	buildShadow: function(){
 		var theme = this.theme;
-		if (!theme.shadow) return this;
+		if (!theme.shadow || !this.options.shadow) return this;
 		this.shadow = new Element('div', {
 			'styles': {'display': 'none'},
 			'class': theme.classPrefix + '-shadow-' + theme.shadow
@@ -317,9 +322,9 @@ var Windoo = new Class({
 			var $row = function(name){
 				var els = ['l','r','m'].map(function(e){ return new Element('div', {'class': e}); });
 				var el = new Element('div', {'class': name});
-				return el.adopt.apply(el,els);
+				return el.adopt.apply(el, els);
 			};
-			this.shadow.adopt($row('top'),$row('bot'));
+			this.shadow.adopt($row('top'), $row('bot'));
 		}
 		return this;
 	},
@@ -637,6 +642,7 @@ var Windoo = new Class({
 	*/
 
 	maximize: function(noeffect){
+		if (this.minimized) return this.minimize();
 		var bound = function(value, limit){
 			if (!limit) return value;
 			if (value < limit[0]) return limit[0]
@@ -710,7 +716,7 @@ var Windoo = new Class({
 	},
 
 	/*
-	Property: shade
+	Property: openmenu
 		TODO. Toggle window popup menu
 	*/
 
@@ -764,15 +770,6 @@ var Windoo = new Class({
 
 	bringTop: function(){
 		this.setZIndex(this.wm.maxZIndex());
-		return this;
-	},
-
-	/*
-	Property: bringBottom
-		TODO. Put window on the bottom of the windows stack
-	*/
-
-	bringBottom: function(){
 		return this;
 	}
 

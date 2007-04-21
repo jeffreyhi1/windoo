@@ -8,34 +8,18 @@ License:
 
 Copyright:
 	copyright (c) 2007 Yevgen Gorshkov
+
+TODO:
+	- automatically convert <img> into resiable <div> container
 */
 
 /*
- * from digitarald's extended moo
- * http://dev.digitarald.de/js/moo.dev.extend.js
- */
-Element.extend({
+Property: Window.shade
+	Create a shade element over all page area with the given properties.
 
-	fixOverlay: function(hide){
-		if (!window.ie) return false;
-		if (!this.fixOverlayElement) this.fixOverlayElement = new Element('iframe', {
-			'properties': {'frameborder': '0', 'scrolling': 'no', 'src': 'javascript:false;'},
-			'styles': {'position': 'absolute', 'border': 'none', 'filter': 'progid:DXImageTransform.Microsoft.Alpha(opacity=0)'}}).injectAfter(this);
-		if (hide) return this.fixOverlayElement.setStyle('display', 'none');
-		var z = this.getStyle('z-index').toInt() || 0;
-		if (z < 1) this.setStyle('z-index', '' + (z = 2) );
-		var pos = this.getCoordinates();
-		return this.fixOverlayElement.setStyles({'display' : '', 'z-index': '' + (z - 1),
-			'left': pos.left + 'px', 'top': pos.top + 'px',
-			'width': pos.width + 'px', 'height': pos.height + 'px'});
-	},
-
-	remove: function(){
-		if (this.fixOverlayElement) this.fixOverlayElement.remove();
-		return this.parentNode.removeChild(this);
-	}
-
-});
+Arguments:
+	options - optional, options passed to the Element constructor.
+*/
 
 window.shade = function(options){
 	var size = this.getSize().size;
@@ -369,6 +353,39 @@ Class: Element
 Element.extend({
 
 	/*
+	Property: fixOverlay
+		IE only, create or update overlay element to fix 'IE select bug'.
+		From digitarald's extended moo. See <http://dev.digitarald.de/js/moo.dev.extend.js>
+
+	Arguments:
+		hide - optional, hide overlay element if true.
+	*/
+
+	fixOverlay: function(hide){
+		if (!window.ie6) return false;
+		if (!this.fixOverlayElement) this.fixOverlayElement = new Element('iframe', {
+			'properties': {'frameborder': '0', 'scrolling': 'no', 'src': 'javascript:false;'},
+			'styles': {'position': 'absolute', 'border': 'none', 'filter': 'progid:DXImageTransform.Microsoft.Alpha(opacity=0)'}}).injectAfter(this);
+		if (hide) return this.fixOverlayElement.setStyle('display', 'none');
+		var z = this.getStyle('z-index').toInt() || 0;
+		if (z < 1) this.setStyle('z-index', '' + (z = 2) );
+		var pos = this.getCoordinates();
+		return this.fixOverlayElement.setStyles({'display' : '', 'z-index': '' + (z - 1),
+			'left': pos.left + 'px', 'top': pos.top + 'px',
+			'width': pos.width + 'px', 'height': pos.height + 'px'});
+	},
+
+	/*
+	Property: remove
+		Removes the Element from the DOM. Also removes overlay element if present.
+	*/
+
+	remove: function(){
+		if (this.fixOverlayElement) this.fixOverlayElement.remove();
+		return this.parentNode.removeChild(this);
+	},
+
+	/*
 	Property: makeResizable
 		Makes an element resizable (by dragging) with the supplied options.
 
@@ -382,4 +399,5 @@ Element.extend({
 			return new Drag.Base(this, $merge({modifiers: {'x': 'width', 'y': 'height'}}, options));
 		return new Drag.Resize(this, options);
 	}
+
 });

@@ -36,8 +36,16 @@ div.windoo a.windoo-button {
 	outline:none;
 	z-index:10;
 }
-.windoo-maximized .windoo-sizer, .windoo-minimized .windoo-sizer, .windoo-shaded .windoo-sizer {
+
+/* Minimized and maximazed states */
+div.windoo-maximized .windoo-sizer, div.windoo-minimized .windoo-sizer, div.windoo-shaded .windoo-sizer, div.windoo-minimized a.windoo-button {
 	display:none !important;
+}
+div.windoo-minimized a.windoo-restore {
+	display:block !important;
+}
+div.windoo-minimized div.windoo-body {
+	display:none;
 }
 
 /* Windoo sizers */
