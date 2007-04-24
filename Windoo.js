@@ -901,6 +901,15 @@ Class: Windoo.Themes
 */
 
 Windoo.Themes = {
+
+	cssPath: '/css/',
+	ffMacCss: 'ffmac.css',
+
+	/*
+	Property: aero
+		Modified 'aero' theme from YUI-Ext library <http://extjs.com/>
+	*/
+
 	aero: {
 		'name': 'aero',
 		'padding': [28, 7, 30, 7],
@@ -914,6 +923,12 @@ Windoo.Themes = {
 		'shadeBackground': 'transparent url(windoo/s.gif)',
 		'shadowDisplace': {'left': 3, 'top': 3, 'width': 0, 'height': 0}
 	},
+
+	/*
+	Property: alphacube
+		Modified Alphacube-color theme; For the original theme see <http://art.gnome.org/themes/metacity/1171>
+	*/
+
 	alphacube: {
 		'name': 'alphacube',
 		'padding': [22, 10, 15, 10],
@@ -930,4 +945,4 @@ Windoo.Themes = {
 };
 
 // FF/Mac overlapping scrollbar fix
-if (window.gecko && navigator.appVersion.indexOf('acintosh') >= 0) new Asset.css('/css/ffmac.css');
+if (window.gecko && navigator.appVersion.indexOf('acintosh') >= 0) window.addEvent('domready', function(){ new Asset.css(Windoo.Themes.cssPath + Windoo.Themes.ffMacCss); });
