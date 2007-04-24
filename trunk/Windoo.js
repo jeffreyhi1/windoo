@@ -323,6 +323,11 @@ var Windoo = new Class({
 		return this;
 	},
 
+	/*
+	Property: makeResizable
+		internal, add resizable effect to the window (see <Drag.Resize>)
+	*/
+
 	makeResizable: function(){
 		var self = this, theme = this.theme;
 		this.fx.resize = this.el.makeResizable({
@@ -367,6 +372,11 @@ var Windoo = new Class({
 			}
 		});
 	},
+
+	/*
+	Property: makeDraggable
+		internal, add drag effect to the window (see <Drag.Move>)
+	*/
 
 	makeDraggable: function(){
 		var self = this, fx = this.fx.drag = [];
@@ -526,6 +536,11 @@ var Windoo = new Class({
 		this.el.fixOverlay(hide);
 		return this.fixShadow(hide);
 	},
+
+	/*
+	Property: fixShadow
+		internal, update shadow position and visibility according to the current window state
+	*/
 
 	fixShadow: function(hide){
 		if (this.shadow){
