@@ -902,7 +902,18 @@ Class: Windoo.Themes
 
 Windoo.Themes = {
 
+	/*
+	Property: cssPath
+		Path to default theme CSS directory
+	*/
+
 	cssPath: '/css/',
+
+	/*
+	Property: cssPath
+		Firefox/Mac-specific CSS file name
+	*/
+
 	ffMacCss: 'ffmac.css',
 
 	/*
