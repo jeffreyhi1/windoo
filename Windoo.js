@@ -16,7 +16,7 @@ TODO:
 	- modals / confirm / alert
 	- refactor action effects (make effects customizable)
 	- manage minimized windows with window manager
-	- ghost_drag
+	- ghost_drag option
 	- window shade and popup menu
 	- more themes
 	- cascade window positioning
@@ -33,7 +33,7 @@ Options:
 	title - optional, window title;
 	width - required, int, window width in pixels (including window border);
 	height - required, int, window height in pixels (including window border);
-	position - optional, window position method (one of false, 'center', 'cascade' - TODO). if false, top and left options define the coordinates. defaults to 'center';
+	position - optional, window position method (one of false, 'center', 'cascade': TODO). if false, top and left options define window coordinates. defaults to 'center';
 	top - optional, int, top window coordinate;
 	left - optional, int, left window coordinate;
 	type - optional, window content type. one of 'dom', 'iframe'. defaults to 'dom';
@@ -53,7 +53,7 @@ Options:
 	buttons - object, see Buttons below;
 	class - opional, additional custom window element class name;
 	wm - optional, defines window manager (see Windoo.Manager) to attach window to;
-	effects - object, see Effects below
+	effects - object, see Effects below;
 
 Ghost:
 	resize - boolean, ghost resiaing. defaults to false;
