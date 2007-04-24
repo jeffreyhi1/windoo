@@ -19,6 +19,7 @@ TODO:
 	- ghost_drag
 	- window shade and popup menu
 	- more themes
+	- cascade window positioning
 */
 
 /*
@@ -59,11 +60,16 @@ Ghost:
 	move - boolean, ghost moving. defaults to false;
 
 Buttons:
-	menu - display window control menu button. defaults to false;
-	close - display close window control button. defaults to true;
-	shade - display shade window control button. defaults to false;
-	minimize - display minimize window control button. defaults to true;
-	maximize - display maximize window control button. defaults to true;
+	menu - display window control menu button (see <Buttons display values> below). defaults to false;
+	close - display close window control button (see <Buttons display values> below). defaults to true;
+	shade - display shade window control button (see <Buttons display values> below). defaults to false;
+	minimize - display minimize window control button (see <Buttons display values> below). defaults to true;
+	maximize - display maximize window control button (see <Buttons display values> below). defaults to true;
+
+Buttons display values:
+	true - display button
+	false - do not create buttons
+	'diabled' - display inactive button
 
 Effects:
 	close - ?
@@ -188,6 +194,7 @@ var Windoo = new Class({
 	initialize: function(options){
 		var self = this;
 		this.fx = {};
+		this.bound = {};
 		this.zIndex = 0;
 
 		this.options.id = 'windoo-' + (new Date().getTime());
@@ -220,7 +227,7 @@ var Windoo = new Class({
 
 	/*
 	Property: buildDOM
-		internal. Constructs DOM structure of the window
+		internal, construct DOM structure of the window
 	*/
 
 	buildDOM: function(){
@@ -277,38 +284,33 @@ var Windoo = new Class({
 
 	/*
 	Property: buildButtons
-		internal. Constructs DOM structure of the window buttons
+		internal, construct DOM structure of the window buttons
 	*/
 
 	buildButtons: function(){
-		var self = this, buttons = this.options.buttons, theme = this.theme, _p = theme.classPrefix;
-		var btnClass = _p + "-button " + _p;
-
-		var action = function(name){ return function(ev){ new Event(ev).stop(); self[name](); }; }
-		if(buttons.close)
-			this.dom.close = new Element('a', { 'class': btnClass + '-close', href:'#', title:'Close' }).setHTML('x')
-				.addEvent('click',action('close')).inject(this.el);
-		if(buttons.maximize)
-			this.dom.maximize = new Element('a', { 'class': btnClass + '-maximize', href:'#', title:'Maximize' }).setHTML('O')
-				.addEvent('click',action('maximize')).inject(this.el);
-		if(buttons.minimize){
-			this.dom.minimize = new Element('a', { 'class': btnClass + '-minimize', href:'#', title:'Minimize' }).setHTML('_')
-				.addEvent('click',action('minimize')).inject(this.el);
-			this.dom.restore = new Element('a', { 'class': btnClass + '-restore', href:'#', title:'Restore' }).setHTML('O')
-				.addEvent('click',action('minimize')).inject(this.el);
-		}
-		if(buttons.shade)
-			this.dom.minimize = new Element('a', { 'class': btnClass + '-shade', href:'#', title:'Shade' }).setHTML('-')
-				.addEvent('click',action('shade')).inject(this.el);
-		if(buttons.menu)
-			this.dom.menu = new Element('a', { 'class': btnClass + '-menu', href:'#', title:'Menu' }).setHTML('v')
-				.addEvent('click',action('openmenu')).inject(this.el);
+		var self = this, buttons = this.options.buttons, _p = this.theme.classPrefix;
+		var action = function(name){ return function(ev){ new Event(ev).stop(); self[name](); }; };
+		this.bound.noaction = function(ev){ new Event(ev).stop(); };
+		var makeButton = function(opt, name, title, action){
+			self.bound[name] = action;
+			if (opt){
+				var klass = _p + '-button ' + _p + '-' + name + ( opt == 'disabled' ? ' ' + _p + '-' + name + '-disabled' : "" );
+				self.dom[name] = new Element('a', {'class': klass, 'href': '#', 'title': title}).setHTML('x').inject(self.el);
+				self.dom[name].addEvent('click', opt == 'disabled' ? self.bound.noaction : action);
+			}
+		};
+		makeButton(buttons.close, 'close', 'Close', action('close'));
+		makeButton(buttons.maximize, 'maximize', 'Maximize', action('maximize'));
+		makeButton(buttons.minimize, 'minimize', 'Minimize', action('minimize'));
+		makeButton(buttons.minimize, 'restore', 'Restore', action('minimize'));
+		makeButton(buttons.shade, 'shade', 'Shade', action('shade'));
+		makeButton(buttons.menu, 'menu', 'Menu', action('menu'));
 		return this;
 	},
 
 	/*
 	Property: buildShadow
-		internal. Constructs window shadow element
+		internal, construct window shadow element
 	*/
 
 	buildShadow: function(){
@@ -433,6 +435,7 @@ var Windoo = new Class({
 		if (el){
 			if (el.getParent()) el.remove();
 			this.dom.content.adopt(el);
+			el.setStyles({'visibility': 'visible', 'display': 'block'});
 		}
 		return this;
 	},
@@ -524,7 +527,7 @@ var Windoo = new Class({
 
 	/*
 	Property: fix
-		Internal. Update window overlay and shadow
+		internal, update window overlay and shadow
 	*/
 
 	fix: function(hide){
@@ -703,30 +706,30 @@ var Windoo = new Class({
 
 	/*
 	Property: shade
-		TODO. Toggle shaded window state
+		TODO, toggle shaded window state
 
 	Arguments:
 		noeffect - optional, if true, toggle window state immediately without effect
 	*/
 
 	shade: function(noeffect){
-		//### TODO
 		this.fireEvent('onShade');
 		return this.fix();
 	},
 
 	/*
 	Property: openmenu
-		TODO. Toggle window popup menu
+		TODO, toggle window popup menu
 	*/
 
 	openmenu: function(){
+		this.fireEvent('onMenu');
 		return this;
 	},
 
 	/*
 	Property: setZIndex
-		Internal. Set window z-index
+		internal, set window z-index
 
 	Arguments:
 		z - z-index value
@@ -821,7 +824,7 @@ Windoo.Manager = new Class({
 
 	/*
 	Property: register
-		Internal. Register new window in the manager
+		internal, register new window in the manager
 	*/
 
 	register: function(win){
@@ -832,7 +835,7 @@ Windoo.Manager = new Class({
 
 	/*
 	Property: unregister
-		Internal. Unregister window
+		internal, unregister window
 	*/
 
 	unregister: function(win){
@@ -842,7 +845,7 @@ Windoo.Manager = new Class({
 
 	/*
 	Property: focus
-		Internal. Focus the window
+		internal, set focus to the window
 
 	Arguments:
 		win - window to set as focused
@@ -859,7 +862,7 @@ Windoo.Manager = new Class({
 
 	/*
 	Property: blur
-		Internal. Remove focus from the window if focused. Returns true if focus is removed
+		internal, remove focus from the window if focused. Returns true if focus is removed
 
 	Arguments:
 		win - window to remove focus from
