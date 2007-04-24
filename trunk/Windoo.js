@@ -30,28 +30,28 @@ Arguments:
 	options - The options object.
 
 Options:
+	title - optional, window title;
 	width - required, int, window width in pixels (including window border);
 	height - required, int, window height in pixels (including window border);
+	position - optional, window position method (one of false, 'center', 'cascade' - TODO). if false, top and left options define the coordinates. defaults to 'center';
 	top - optional, int, top window coordinate;
 	left - optional, int, left window coordinate;
-	title - optional, window title;
+	type - optional, window content type. one of 'dom', 'iframe'. defaults to 'dom';
+	url - optional, source URL for 'iframe' and 'ajax' window types to load at start;
+	resizable - boolean, defines if the window is resizable. defaults to true;
+	draggable - boolean, defines if the window is draggable. defaults to true;
 	resizeLimit - optional, window resize limits (see Drag.Resize::limit option);
-	ghost - object, see Ghost below;
-	position - optional, window position method (one of 'center', 'cascade' - TODO). if not false top and left options are ignored. defaults to 'center';
-	buttons - object, see Buttons below;
 	container - optional, window container element. defaults to parentNode;
 	dragContainer - optional, defines window drag container. defaults to container option;
 	restrictDrag - boolean, restrict windows drag to the container. defaults to false;
 	resizeContainer - optional, defines window resize container. defaults to Options::container;
 	restrictResize - boolean, restrict windows resize to the container. defaults to false;
-	type - optional, window content type. one of 'dom', 'iframe'. defaults to 'dom';
-	modal - boolean, defines if the window is modal. defaults to false;
-	resizable - boolean, defines if the window is resizable. defaults to true;
-	draggable - boolean, defines if the window is draggable. defaults to true;
-	url - optional, source URL for 'iframe' and 'ajax' window types to load at start;
-	class - opional, additional custom window element class name;
+	ghost - object, see Ghost below;
 	theme - optional, defines window theme (see Windoo.Themes). defaults to 'windoo';
 	shadow - optional, if false turns off window shadow event if such is defined in theme. defaults to true;
+	modal - boolean, TODO, defines if the window is modal. defaults to false;
+	buttons - object, see Buttons below;
+	class - opional, additional custom window element class name;
 	wm - optional, defines window manager (see Windoo.Manager) to attach window to;
 	effects - object, see Effects below
 
@@ -143,8 +143,8 @@ var Windoo = new Class({
 		restrictResize: false,
 		resizeContainer: false,
 
-		type: 'dom', // dom, iframe, ajax
-		modal: false, //########## TODO
+		type: 'dom',
+		modal: false,
 		resizable: true,
 		draggable: true,
 		
