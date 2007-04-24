@@ -73,6 +73,11 @@ div.windoo-aero a.windoo-close {
 div.windoo-aero a.windoo-close:hover {
 	background-position:-69px -19px;
 }
+div.windoo-aero a.windoo-close-disabled, div.windoo-aero a.windoo-close-disabled:hover {
+	background-position:-69px 0;
+	opacity:.3;
+	filter:Alpha(opacity=30);
+}
 div.windoo-aero a.windoo-maximize {
 	top:0px;
 	right:33px;
@@ -81,6 +86,11 @@ div.windoo-aero a.windoo-maximize {
 div.windoo-aero a.windoo-maximize:hover {
 	background-position:-46px -19px;
 }
+div.windoo-aero a.windoo-maximize-disabled, div.windoo-aero a.windoo-maximize-disabled:hover {
+	background-position:-46px 0;
+	opacity:.3;
+	filter:Alpha(opacity=30);
+}
 div.windoo-aero a.windoo-minimize {
 	top:0px;
 	right:56px;
@@ -88,6 +98,11 @@ div.windoo-aero a.windoo-minimize {
 }
 div.windoo-aero a.windoo-minimize:hover {
 	background-position:0 -19px;
+}
+div.windoo-aero a.windoo-minimize-disabled, div.windoo-aero a.windoo-minimize-disabled:hover {
+	background-position:0 0;
+	opacity:.3;
+	filter:Alpha(opacity=30);
 }
 div.windoo-aero a.windoo-restore {
 	display:none;
@@ -98,6 +113,11 @@ div.windoo-aero a.windoo-restore {
 div.windoo-aero a.windoo-restore:hover {
 	background-position:-46px -19px;
 }
+div.windoo-aero a.windoo-restore-disabled, div.windoo-aero a.windoo-restore-disabled:hover {
+	background-position:-46px 0;
+	opacity:.3;
+	filter:Alpha(opacity=30);
+}
 div.windoo-aero a.windoo-shade {
 	top:0px;
 	right:79px;
@@ -106,7 +126,15 @@ div.windoo-aero a.windoo-shade {
 div.windoo-aero a.windoo-shade:hover {
 	background-position:-23px -19px;
 }
+div.windoo-aero a.windoo-shade-disabled, div.windoo-aero a.windoo-shade-disabled:hover {
+	background-position:-23px 0;
+	opacity:.3;
+	filter:Alpha(opacity=30);
+}
 
+div.windoo-aero a.windoo-menu {
+	display:none;
+}
 
 div.windoo-aero-minimized {
 	width:165px !important;
