@@ -121,15 +121,26 @@ Example:
 
 var Windoo = new Class({
 	options: {
+		type: 'dom',
+		url: false,
+		title: 'Windoo!',
 		width: 300,
 		height: 200,
+		position: 'center',
 		top: 0,
 		left: 0,
-		title: 'Windoo!',
+		resizable: true,
+		draggable: true,
 		resizeLimit: {'x': [0], 'y': [0]},
 		ghost: {'resize': false, 'drag': false},
-		
-		position: 'center',
+		container: null,
+		restrictDrag: false,
+		dragContainer: false,
+		restrictResize: false,
+		resizeContainer: false,
+		theme: 'alphacube',
+		shadow: true,
+		modal: false,
 		buttons: {
 			menu: false,
 			close: true,
@@ -137,24 +148,8 @@ var Windoo = new Class({
 			minimize: true,
 			maximize: true
 		},
-		container: null,
-		restrictDrag: false,
-		dragContainer: false,
-		restrictResize: false,
-		resizeContainer: false,
-
-		type: 'dom',
-		modal: false,
-		resizable: true,
-		draggable: true,
-		
-		url: false,
-
 		'class': '',
-		theme: 'alphacube',
-		shadow: true,
-		wm: false, // window manager
-
+		wm: false,
 		effects: {
 			show: {
 				options: { duration: 600 },
@@ -169,10 +164,8 @@ var Windoo = new Class({
 				styles: { 'opacity': [1,0] }
 			}
 		},
-
 		onFocus: Class.empty,
 		onBlur: Class.empty,
-
 		onClose: Class.empty,
 		onHide: Class.empty,
 		onShow: Class.empty,
@@ -180,7 +173,6 @@ var Windoo = new Class({
 		onMinimize: Class.empty,
 		onShade: Class.empty,
 		onRestore: Class.empty,
-
 		onBeforeDrag: Class.empty,
 		onStartDrag: Class.empty,
 		onDrag: Class.empty,
