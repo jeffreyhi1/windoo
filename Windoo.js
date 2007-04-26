@@ -41,12 +41,9 @@ Options:
 	resizable - boolean, defines if the window is resizable. defaults to true;
 	draggable - boolean, defines if the window is draggable. defaults to true;
 	resizeLimit - optional, window resize limits (see Drag.Resize::limit option);
-	container - optional, window container element. defaults to parentNode;
-	dragContainer - optional, defines window drag container. defaults to container option;
-	restrictDrag - boolean, restrict windows drag to the container. defaults to false;
-	resizeContainer - optional, defines window resize container. defaults to Options::container;
-	restrictResize - boolean, restrict windows resize to the container. defaults to false;
+	container - optional, window container element, should have position relative or absolute. defaults to document.body;
 	ghost - object, see Ghost below;
+	snap - object, see Snap below;
 	theme - optional, defines window theme (see Windoo.Themes). defaults to 'windoo';
 	shadow - optional, if false turns off window shadow event if such is defined in theme. defaults to true;
 	modal - boolean, TODO, defines if the window is modal. defaults to false;
@@ -58,6 +55,10 @@ Options:
 Ghost:
 	resize - boolean, ghost resiaing. defaults to false;
 	move - boolean, ghost moving. defaults to false;
+
+Snap:
+	resize - see <Drag.Resize> span option;
+	move - see <Drag.Move> span option;
 
 Buttons:
 	menu - display window control menu button (see <Buttons display values> below). defaults to false;
@@ -133,11 +134,8 @@ var Windoo = new Class({
 		draggable: true,
 		resizeLimit: {'x': [0], 'y': [0]},
 		ghost: {'resize': false, 'drag': false},
+		snap: {'resize': 6, 'drag': 6},
 		container: null,
-		restrictDrag: false,
-		dragContainer: false,
-		restrictResize: false,
-		resizeContainer: false,
 		theme: 'alphacube',
 		shadow: true,
 		modal: false,
@@ -192,10 +190,7 @@ var Windoo = new Class({
 		this.options.id = 'windoo-' + (new Date().getTime());
 		this.setOptions(options);
 		var theme = this.theme = $type(this.options.theme) == 'string' ? Windoo.Themes[this.options.theme] : this.options.theme;
-
 		this.options.container = $(this.options.container || document.body);
-		if (this.options.restrictDrag) this.options.dragContainer = this.options.container;
-		if (this.options.restrictResize) this.options.resizeContainer = this.options.container;
 
 		['x', 'y'].each(function(z){
 			var lim = this.options.resizeLimit;
@@ -243,7 +238,7 @@ var Windoo = new Class({
 
 		var $row = function(prefix, contentClass){
 			return '<div class="' + prefix + '-left ' + _p + '-drag"><div class="' + prefix + '-right"><div class="' + contentClass + '"></div></div></div>';
-		}
+		};
 		var iefix = window.ie && this.options.type != 'iframe',
 			body = iefix ? '<table style="border-collapse:collapse;padding:0;cell-padding:0;"><tr><td></td></tr></table>' : '';
 		this.innerContent = '<div class="' + _p + '-frame">' + $row("top", "title") + $row("bot", "strut") + '</div>'
@@ -281,7 +276,12 @@ var Windoo = new Class({
 
 	buildButtons: function(){
 		var self = this, buttons = this.options.buttons, _p = this.theme.classPrefix;
-		var action = function(name){ return function(ev){ new Event(ev).stop(); self[name](); }; };
+		var action = function(name, bind){
+			return function(ev){
+				new Event(ev).stop();
+				(bind[name])();
+			};
+		};
 		this.bound.noaction = function(ev){ new Event(ev).stop(); };
 		var makeButton = function(opt, name, title, action){
 			self.bound[name] = action;
@@ -291,12 +291,12 @@ var Windoo = new Class({
 				self.dom[name].addEvent('click', opt == 'disabled' ? self.bound.noaction : action);
 			}
 		};
-		makeButton(buttons.close, 'close', 'Close', action('close'));
-		makeButton(buttons.maximize, 'maximize', 'Maximize', action('maximize'));
-		makeButton(buttons.minimize, 'minimize', 'Minimize', action('minimize'));
-		makeButton(buttons.minimize, 'restore', 'Restore', action('minimize'));
-		makeButton(buttons.shade, 'shade', 'Shade', action('shade'));
-		makeButton(buttons.menu, 'menu', 'Menu', action('menu'));
+		makeButton(buttons.close, 'close', 'Close', action('close', this));
+		makeButton(buttons.maximize, 'maximize', 'Maximize', action('maximize', this));
+		makeButton(buttons.minimize, 'minimize', 'Minimize', action('minimize', this));
+		makeButton(buttons.minimize, 'restore', 'Restore', action('minimize', this));
+		makeButton(buttons.shade, 'shade', 'Shade', action('shade', this));
+		makeButton(buttons.menu, 'menu', 'Menu', action('menu', this));
 		return this;
 	},
 
@@ -329,16 +329,17 @@ var Windoo = new Class({
 	*/
 
 	makeResizable: function(){
-		var self = this, theme = this.theme;
+		var self = this, theme = this.theme, opt = this.options;
 		this.fx.resize = this.el.makeResizable({
 			ghostClass: theme.ghostClass,
 			hoverClass: theme.hoverClass,
 			classPrefix: theme.classPrefix + '-sizer ' + theme.classPrefix + '-',
 			shadeBackground: theme.shadeBackground,
 
-			ghost: this.options.ghost.resize,
-			resizeLimit: this.options.resizeLimit,
-			container: this.options.resizeContainer,
+			container: opt.container,
+			resizeLimit: opt.resizeLimit,
+			ghost: opt.ghost.resize,
+			snap: opt.snap.resize,
 
 			onBeforeStart: function(){
 				self.fireEvent('onBeforeResize', this).focus();
@@ -381,8 +382,8 @@ var Windoo = new Class({
 	makeDraggable: function(){
 		var self = this, fx = this.fx.drag = [];
 		var opts = {
-			container: this.options.dragContainer,
-			limit: {'x': [0], 'y': [0]},
+			container: this.options.container,
+			snap: this.options.snap.drag,
 			onBeforeStart: function(){
 				this.shade = window.shade({ styles:{
 					'cursor': this.options.handle.getStyle('cursor'),
@@ -549,7 +550,7 @@ var Windoo = new Class({
 			} else if (!this.maximized){
 				var pos = this.el.getCoordinates(), pad = this.theme.shadowDisplace;
 				this.shadow.setStyles({'display': '', 'z-index': '' + (this.zIndex - 1),
-					'left': pos.left + pad.left, 'top': pos.top + pad.top,
+					'left': this.el.offsetLeft + pad.left, 'top': this.el.offsetTop + pad.top,
 					'width': pos.width + pad.width, 'height': pos.height + pad.height});
 			}
 		}
