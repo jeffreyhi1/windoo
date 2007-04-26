@@ -22,7 +22,7 @@ Arguments:
 */
 
 window.shade = function(options){
-	var size = this.getSize().size;
+	var size = this.getSize().scrollSize;
 	var shade = new Element('div', $merge({ styles:{
 		'position': 'absolute',
 		'top': 0,
@@ -62,6 +62,7 @@ Options:
 	container - an element, will fill automatically limiting options based on the $(element) size and position. if false no limiting is applied. defaults to null (parentNode);
 	preserveRatio - boolean, preserve initial element aspect ratio during resize. defaults to false;
 	ghost - optional, show wired ghpot element during resize and update the element size and position after resize is completed;
+	snap - optional, the distance you have to drag before the element starts to respond to the drag. defaults to 6;
 	direction - object, see Direction below;
 	limiter - object, see Limiter below;
 	moveLimiter - object, see Limiter below;
@@ -102,6 +103,7 @@ Drag.Resize = new Class({
 		container: null, // false == no caintainer, null == container is parentNode
 		preserveRatio: false,
 		ghost: false,
+		snap: 6,
 		direction: Drag.Multi.$direction,
 		limiter:{
 			'x': {'-1': ['left', 'right'], '1': ['right', 'left']},
@@ -141,13 +143,13 @@ Drag.Resize = new Class({
 		}
 
 		var ce = this.el.getCoordinates();
-		this.el.setStyles({ 'width': ce.width, 'height': ce.height });
+		this.el.setStyles({'width': ce.width, 'height': ce.height});
 		if (this.options.container){
 			if (this.el.getStyle('position') != 'relative'){
 				var cc = this.options.container.getCoordinates();
-				this.el.setStyles({ 'left': ce.left - cc.left, 'top': ce.top - cc.top });
+				this.el.setStyles({'left': ce.left - cc.left, 'top': ce.top - cc.top});
 			}
-			this.options.moveLimit = $merge({ 'x': [0], 'y': [0] }, this.options.moveLimit);
+			this.options.moveLimit = $merge({'x': [0], 'y': [0]}, this.options.moveLimit);
 		}
 
 		if (this.options.preserveRatio){
@@ -165,18 +167,19 @@ Drag.Resize = new Class({
 			fix('x','y','min',1,R);
 			fix('y','x','min',1,1/R);
 			this.aspectStep = {
-				x: { step: function(s, c, d){ return d * c / R - s; } },
-				y: { step: function(s, c, d){ return d * c * R - s; } }
+				x: {step: function(s, c, d){ return d * c / R - s; }},
+				y: {step: function(s, c, d){ return d * c * R - s; }}
 			};
 			['nw','ne','sw','se'].each(function(z){ delete this[z]; }, this.options.direction);
 		}
 
 		if (this.options.ghost){
-			this.ghost = new Element('div',{ 'class': this.options.ghostClass, 'styles': { 'display': 'none' } }).injectAfter(this.el);
-			for (var d in this.options.direction) this.ghost.adopt(new Element('div', { 'class': this.options.classPrefix + d }));
+			this.ghost = new Element('div', {'class': this.options.ghostClass, 'styles': {'display': 'none'}}).injectAfter(this.el);
+			for (var d in this.options.direction) this.ghost.adopt(new Element('div', {'class': this.options.classPrefix + d}));
 		}
 
-		var opts = {
+		var rOpts = {
+			snap: this.options.snap,
 			onBeforeStart: function(){
 				self.fireEvent('onBeforeStart', this);
 				self.started = true;
@@ -232,7 +235,7 @@ Drag.Resize = new Class({
 
 		var rlimitFcn = function(sign, props, limit){
 			if (!self.options.container) return limit;
-			if (!limit) limit=[0];
+			if (!limit) limit = [0];
 			var generator = function(lim){
 				return function(mod){
 					var cc = self.options.container.getCoordinates(),
@@ -257,7 +260,7 @@ Drag.Resize = new Class({
 			var generator = function(lim, rlim, op, rdef){
 				if (!$type(rlim)) rlim = rdef;
 				var lim_type = $type(lim);
-				if (rlim === null) return lim_type == "function" ? lim : Class.empty;
+				if (rlim === null) return lim_type == "function" ? lim : function(){ return lim; };
 				return function(mod){
 					var cc = container.getCoordinates(),
 						ec = mod.element.getCoordinates();
@@ -272,59 +275,54 @@ Drag.Resize = new Class({
 			return [generator(limit[0],rlimit[1],'max',null), generator(limit[1],rlimit[0],'min',limit[1])];
 		};
 
-		var el = this.ghost ? this.ghost : this.el;
-		for (var d in this.options.direction){
-			var mod = this.options.direction[d];
-
-			opts.handle = new Element('div', {
-				'class': this.options.classPrefix + d
-			}).inject(this.el);
-
+		var opt = this.options, el = this.ghost ? this.ghost : this.el;
+		for (var d in opt.direction){
+			var mod = opt.direction[d];
+			rOpts.handle = new Element('div', {'class': opt.classPrefix + d}).inject(this.el);
+			var drag = this.fx[d] = new Drag.Multi(rOpts);
 			var resizeLimit = {
-				'x': rlimitFcn(mod.x, this.options.limiter.x[''+mod.x], this.options.resizeLimit.x),
-				'y': rlimitFcn(mod.y, this.options.limiter.y[''+mod.y], this.options.resizeLimit.y)
+				'x': rlimitFcn(mod.x, opt.limiter.x['' + mod.x], opt.resizeLimit.x),
+				'y': rlimitFcn(mod.y, opt.limiter.y['' + mod.y], opt.resizeLimit.y)
 			};
-
-			var drag = this.fx[d] = new Drag.Multi(opts);
 			var moveOpts = {
 				limit: {
-					'x': mlimitFcn(this.options.moveLimiter.x, this.options.moveLimit.x, this.options.resizeLimit.x),
-					'y': mlimitFcn(this.options.moveLimiter.y, this.options.moveLimit.y, this.options.resizeLimit.y)
+					'x': mlimitFcn(opt.moveLimiter.x, opt.moveLimit.x, opt.resizeLimit.x),
+					'y': mlimitFcn(opt.moveLimiter.y, opt.moveLimit.y, opt.resizeLimit.y)
 				},
-				grid: this.options.grid,
+				grid: opt.grid,
 				modifiers: {}
 			};
-			for (var z in mod) if (mod[z] < 0) moveOpts.modifiers[z] = this.options.modifiers[z];
-			var binds = { move: drag.add(el, moveOpts) };
+			for (var z in mod) if (mod[z] < 0) moveOpts.modifiers[z] = opt.modifiers[z];
+			var binds = {move: drag.add(el, moveOpts)};
 			if (mod.x != undefined){
 				binds.x = drag.add(el, {
-					limit: mod.x<0 ? false : resizeLimit,
-					grid: mod.x<0 ? false : this.options.grid,
-					bind: mod.x<0 ? binds.move : false,
-					modifiers: {'x': this.options.modifiers.width},
+					limit: mod.x < 0 ? false : resizeLimit,
+					grid: mod.x < 0 ? false : opt.grid,
+					bind: mod.x < 0 ? binds.move : false,
+					modifiers: {'x': opt.modifiers.width},
 					direction: {'x': mod.x}
 				});
 				if (this.options.preserveRatio)
 					binds.xAspect = drag.add(el, {
 						bind: binds.x,
 						fn: this.aspectStep,
-						modifiers: {'x': this.options.modifiers.height},
+						modifiers: {'x': opt.modifiers.height},
 						direction: {'x': mod.x}
 					});
 			}
 			if (mod.y != undefined){
 				binds.y = drag.add(el, {
-					limit: mod.y<0 ? false : resizeLimit,
-					grid: mod.y<0 ? false : this.options.grid,
-					bind: mod.y<0 ? binds.move : false,
-					modifiers: {'y': this.options.modifiers.height},
+					limit: mod.y < 0 ? false : resizeLimit,
+					grid: mod.y < 0 ? false : opt.grid,
+					bind: mod.y < 0 ? binds.move : false,
+					modifiers: {'y': opt.modifiers.height},
 					direction: {'y': mod.y}
 				});
 				if (this.options.preserveRatio)
 					binds.yAspect = drag.add(el, {
 						bind: binds.y,
 						fn: this.aspectStep,
-						modifiers: {'y': this.options.modifiers.width},
+						modifiers: {'y': opt.modifiers.width},
 						direction: {'y': mod.y}
 					});
 			}
