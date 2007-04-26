@@ -567,8 +567,13 @@ var Windoo = new Class({
 	*/
 
 	getState: function(){
+		var outer = this.el.getCoordinates(), cont = this.options.container.getCoordinates();
+		outer.top -= cont.top;
+		outer.right -= cont.left;
+		outer.bottom -= cont.top;
+		outer.left -= cont.left;
 		return {
-			outer: this.el.getCoordinates(),
+			outer: outer,
 			inner: this.dom.content.getSize()
 		};
 	},
