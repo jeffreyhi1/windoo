@@ -22,6 +22,26 @@ TODO:
 	- cascade window positioning
 */
 
+
+//* mootools fix for Drag.Move to make it work correctly for absolutely positioned container too and element
+//* breaks compatibility when the element is not inside the container 
+Drag.Move.prototype.start = function(event){
+	this.overed = null;
+	if (this.container){
+		var cont = this.container.getCoordinates();
+		var el = this.element.getCoordinates();
+		var diffx = el.left - this.element.getStyle('left').toInt();
+		var diffy = el.top - this.element.getStyle('top').toInt();
+		this.options.limit = {
+			'y': [-(diffy) + cont.top, cont.bottom - diffy - el.height],
+			'x': [-(diffx) + cont.left, cont.right - diffx - el.width]
+		};
+	}
+	Drag.Base.prototype.start.call(this, event);
+};
+
+
+
 /*
 Class: Windoo
 	Draggable and resizable window class.
