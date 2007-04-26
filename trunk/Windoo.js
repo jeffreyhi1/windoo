@@ -676,7 +676,7 @@ var Windoo = new Class({
 			this.el.removeClass(klass);
 			this.restoreState(this.$restoreMaxi).fireEvent('onRestore', 'maximize');
 		}
-		return this;
+		return this.fix(this.maximized);
 	},
 
 	/*
