@@ -1,7 +1,7 @@
 /*
 Script: Windoo.js
 	Mootools draggable and resizable Window extension.
-	Contains <Windoo>, <Windoo.Manager>, <Windoo.Themes>.
+	Contains <Windoo>, <Windoo.Ajax>, <Windoo.Manager>, <Windoo.Themes>.
 
 License:
 	MIT-style license.
@@ -61,17 +61,18 @@ Options:
 	url - optional, source URL for 'iframe' and 'ajax' window types to load at start;
 	resizable - boolean, defines if the window is resizable. defaults to true;
 	draggable - boolean, defines if the window is draggable. defaults to true;
-	resizeLimit - optional, window resize limits (see Drag.Resize::limit option);
+	resizeLimit - optional, window resize limits (see: <Drag.Resize>::limit option);
+	destroyOnClose - boolean, if true destroy window instance when close button clicked, otherwise hide window. default to true;
 	container - optional, window container element, should have position relative or absolute. defaults to document.body;
 	restrict - boolean, if true restrict window dragging and resizing to the container bounds. defaults to true;
 	ghost - object, see Ghost below;
 	snap - object, see Snap below;
-	theme - optional, defines window theme (see Windoo.Themes). defaults to 'windoo';
+	theme - optional, defines window theme (see: <Windoo.Themes>). defaults to 'windoo';
 	shadow - optional, if false turns off window shadow event if such is defined in theme. defaults to true;
 	modal - boolean, TODO, defines if the window is modal. defaults to false;
 	buttons - object, see Buttons below;
 	class - opional, additional custom window element class name;
-	wm - optional, defines window manager (see Windoo.Manager) to attach window to;
+	wm - optional, defines window manager (see: <Windoo.Manager>) to attach window to;
 	effects - object, see Effects below;
 
 Ghost:
@@ -83,11 +84,11 @@ Snap:
 	move - see <Drag.Move> span option;
 
 Buttons:
-	menu - display window control menu button (see <Buttons display values> below). defaults to false;
-	close - display close window control button (see <Buttons display values> below). defaults to true;
-	shade - display shade window control button (see <Buttons display values> below). defaults to false;
-	minimize - display minimize window control button (see <Buttons display values> below). defaults to true;
-	maximize - display maximize window control button (see <Buttons display values> below). defaults to true;
+	menu - display window control menu button (see Buttons display values below). defaults to false;
+	close - display close window control button (see Buttons display values below). defaults to true;
+	shade - display shade window control button (see Buttons display values below). defaults to false;
+	minimize - display minimize window control button (see Buttons display values below). defaults to true;
+	maximize - display maximize window control button (see Buttons display values below). defaults to true;
 
 Buttons display values:
 	true - display button
@@ -102,7 +103,8 @@ Effects:
 Events:
 	onFocus - optional, function to execute when window obtains focus;
 	onBlur - optional, function to execute when window looses focus;
-	onClose - optional, function to execute when window is closed (destroyed);
+	onClose - optional, function to execute when window is destroyed;
+	onDestroy - optional, function to execute when window is destroyed;
 	onHide - optional, function to execute when window is hidden;
 	onShow - optional, function to execute when window is shown;
 	onMaximize - optional, function to execute when window is maximized;
@@ -157,6 +159,7 @@ var Windoo = new Class({
 		resizeLimit: {'x': [0], 'y': [0]},
 		ghost: {'resize': false, 'drag': false},
 		snap: {'resize': 6, 'drag': 6},
+		destroyOnClose: true,
 		container: null,
 		restrict: true,
 		theme: 'alphacube',
@@ -188,6 +191,7 @@ var Windoo = new Class({
 		onFocus: Class.empty,
 		onBlur: Class.empty,
 		onClose: Class.empty,
+		onDestroy: Class.empty,
 		onHide: Class.empty,
 		onShow: Class.empty,
 		onMaximize: Class.empty,
@@ -209,6 +213,7 @@ var Windoo = new Class({
 		this.fx = {};
 		this.bound = {};
 		this.zIndex = 0;
+		this.visible = false;
 
 		this.options.id = 'windoo-' + (new Date().getTime());
 		this.setOptions(options);
@@ -266,7 +271,7 @@ var Windoo = new Class({
 			return '<div class="' + prefix + '-left ' + _p + '-drag"><div class="' + prefix + '-right"><div class="' + contentClass + '"></div></div></div>';
 		};
 		var iefix = window.ie && this.options.type != 'iframe',
-			body = iefix ? '<table style="border-collapse:collapse;padding:0;cell-padding:0;"><tr><td></td></tr></table>' : '';
+			body = iefix ? '<table style="border-collapse:collapse;padding:0;cell-padding:0;width:100%;"><tr><td style="overflow:auto;"></td></tr></table>' : '';
 		this.innerContent = '<div class="' + _p + '-frame">' + $row("top", "title") + $row("bot", "strut") + '</div>'
 			+ '<div class="' + _p + '-body">' + body + '</div>';
 		this.el.setHTML(this.innerContent).inject(this.options.container);
@@ -357,7 +362,7 @@ var Windoo = new Class({
 
 	/*
 	Property: makeResizable
-		internal, add resizable effect to the window (see <Drag.Resize>)
+		internal, add resizable effect to the window (see: <Drag.Resize>)
 	*/
 
 	makeResizable: function(){
@@ -408,7 +413,7 @@ var Windoo = new Class({
 
 	/*
 	Property: makeDraggable
-		internal, add drag effect to the window (see <Drag.Move>)
+		internal, add drag effect to the window (see: <Drag.Move>)
 	*/
 
 	makeDraggable: function(){
@@ -456,7 +461,7 @@ var Windoo = new Class({
 	*/
 
 	setHTML: function(content){
-		this.dom.content.empty().setHTML(content);
+		if (!this.dom.iframe) this.dom.content.empty().setHTML(content);
 		return this;
 	},
 
@@ -564,12 +569,13 @@ var Windoo = new Class({
 	*/
 
 	hide: function(noeffect){
+		if (!this.visible) return this;
+		this.visible = false;
 		if (this.shadow) this.shadow.setStyle('display', 'none');
 		return this.effect('hide', noeffect, function(){
 			this.el.setStyle('visibility', 'hidden');
 			this.fix(true).fireEvent('onHide');
 		}.bind(this));
-		return this;
 	},
 
 	/*
@@ -584,12 +590,13 @@ var Windoo = new Class({
 	*/
 
 	show: function(noeffect){
+		if (this.visible) return this;
+		this.visible = true;
 		this.fireEvent('onShow').bringTop();
 		return this.effect('show', noeffect, function(){
 			this.el.setStyle('visibility', 'visible');
 			this.fix();
 		}.bind(this));
-		return this;
 	},
 
 	/*
@@ -601,8 +608,8 @@ var Windoo = new Class({
 	*/
 
 	fix: function(hide){
-		this.el.fixOverlay(hide);
-		return this.fixShadow(hide);
+		this.el.fixOverlay(hide || !this.visible);
+		return this.fixShadow();
 	},
 
 	/*
@@ -613,15 +620,15 @@ var Windoo = new Class({
 		The Windoo.
 	*/
 
-	fixShadow: function(hide){
+	fixShadow: function(){
 		if (this.shadow){
-			if (hide){
-				this.shadow.setStyle('display', 'none');
-			} else if (!this.maximized){
+			if (this.visible){
 				var pos = this.el.getCoordinates(), pad = this.theme.shadowDisplace;
 				this.shadow.setStyles({'display': '', 'z-index': '' + (this.zIndex - 1),
 					'left': this.el.offsetLeft + pad.left, 'top': this.el.offsetTop + pad.top,
 					'width': pos.width + pad.width, 'height': pos.height + pad.height});
+			} else if (!this.maximized){
+				this.shadow.setStyle('display', 'none');
 			}
 		}
 		return this;
@@ -629,7 +636,7 @@ var Windoo = new Class({
 
 	/*
 	Property: getState
-		Returns current window State see below.
+		Returns current window State.
 
 	State:
 		outer - outer border coordinates;
@@ -673,7 +680,7 @@ var Windoo = new Class({
 		Make window positioned at the browser window center.
 	
 	Arguments:
-		offset - optional, window coordinates Offset object (see below)
+		offset - optional, window coordinates Offset object (see Offset below)
 
 	Offset:
 		x - int, horizontal offset
@@ -712,20 +719,34 @@ var Windoo = new Class({
 
 	/*
 	Property: close
-		Close and destroy window.
+		Close window and destroy if destroyOnClose option is set.
 
 	Arguments:
 		noeffect - optional, if true, close window immediately without effect
 	*/
 
 	close: function(noeffect){
+		if (!this.visible) return this;
+		this.visible = false;
 		if (this.shadow) this.shadow.setStyle('display', 'none');
 		return this.effect('close', noeffect, function(){
-			this.fireEvent('onClose');
-			this.wm.unregister(this);
-			if (this.shadow) this.shadow.empty().remove();
-			this.el.empty().remove();
+			this.el.setStyle('visibility', 'hidden');
+			this.fix(true).fireEvent('onClose');
+			if (this.options.destroyOnClose) this.destroy();
 		}.bind(this));
+	},
+
+	/*
+	Property: destroy
+		Destoroy window immediately.
+	*/
+
+	destroy: function(){
+		this.fireEvent('onDestroy');
+		this.wm.unregister(this);
+		if (this.shadow) this.shadow.empty().remove();
+		this.el.empty().remove();
+		for (var z in this) this[z] = null;
 	},
 
 	/*
@@ -764,7 +785,7 @@ var Windoo = new Class({
 			this.el.removeClass(klass);
 			this.restoreState(this.$restoreMaxi).fireEvent('onRestore', 'maximize');
 		}
-		return this.fix(this.maximized);
+		return this.fix();
 	},
 
 	/*
@@ -888,13 +909,28 @@ var Windoo = new Class({
 	*/
 
 	bringTop: function(){
-		this.setZIndex(this.wm.maxZIndex());
-		return this;
+		return this.setZIndex(this.wm.maxZIndex());
 	}
 
 });
 Windoo.implement(new Options);
 Windoo.implement(new Events);
+
+
+/*
+Class: Windoo.Ajax
+	Extended <Ajax> class to update window content.
+
+Options:
+	window - Windoo object to insert the response text of the XHR into, upon completion of the request.
+*/
+
+Windoo.Ajax = Ajax.extend({
+	onComplete: function(){
+		if (this.options.window) this.options.window.setHTML(this.response.text);
+		this.parent();
+	}
+});
 
 
 /*
@@ -1046,7 +1082,7 @@ Windoo.Themes = {
 
 	/*
 	Property: alphacube
-		Modified Alphacube-color theme; For the original theme see <http://art.gnome.org/themes/metacity/1171>
+		Modified Alphacube-color theme; For the original theme see: <http://art.gnome.org/themes/metacity/1171>
 	*/
 
 	alphacube: {
