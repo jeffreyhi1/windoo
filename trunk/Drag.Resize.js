@@ -82,8 +82,8 @@ Direction:
 	se - south-east direction: { 'x':1, 'y':1 }
 
 Limiter:
-	x - internal. {'-1': ['left', 'right'], '1': ['right', 'left']},
-	y - internal. {'-1': ['top', 'bottom'], '1': ['bottom', 'top']}
+	x - internal; {'-1': ['left', 'right'], '1': ['right', 'left']},
+	y - internal; {'-1': ['top', 'bottom'], '1': ['bottom', 'top']}
 
 Events:
 	onBuild - optional, function to execute when resize handle is built;

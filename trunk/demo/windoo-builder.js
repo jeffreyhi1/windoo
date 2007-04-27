@@ -62,6 +62,7 @@ Windoo.Options = {
 	},
 
 	container: 'eval:container',
+	restrict: 'bool:restrict',
 
 	resizable: 'bool:resizable',
 	draggable: 'bool:draggable',
