@@ -20,6 +20,7 @@ TODO:
 	- window shade and popup menu
 	- more themes
 	- cascade window positioning
+	- container vs wm
 */
 
 
@@ -62,6 +63,7 @@ Options:
 	draggable - boolean, defines if the window is draggable. defaults to true;
 	resizeLimit - optional, window resize limits (see Drag.Resize::limit option);
 	container - optional, window container element, should have position relative or absolute. defaults to document.body;
+	restrict - boolean, if true restrict window dragging and resizing to the container bounds. defaults to true;
 	ghost - object, see Ghost below;
 	snap - object, see Snap below;
 	theme - optional, defines window theme (see Windoo.Themes). defaults to 'windoo';
@@ -156,6 +158,7 @@ var Windoo = new Class({
 		ghost: {'resize': false, 'drag': false},
 		snap: {'resize': 6, 'drag': 6},
 		container: null,
+		restrict: true,
 		theme: 'alphacube',
 		shadow: true,
 		modal: false,
@@ -349,14 +352,14 @@ var Windoo = new Class({
 	*/
 
 	makeResizable: function(){
-		var self = this, theme = this.theme, opt = this.options;
+		var self = this, theme = this.theme, opt = this.options, inbody = opt.container === $(document.body);
 		this.fx.resize = this.el.makeResizable({
 			ghostClass: theme.ghostClass,
 			hoverClass: theme.hoverClass,
 			classPrefix: theme.classPrefix + '-sizer ' + theme.classPrefix + '-',
 			shadeBackground: theme.shadeBackground,
 
-			container: opt.container,
+			container: (opt.restrict || inbody ? opt.container : false),
 			resizeLimit: opt.resizeLimit,
 			ghost: opt.ghost.resize,
 			snap: opt.snap.resize,
@@ -400,9 +403,10 @@ var Windoo = new Class({
 	*/
 
 	makeDraggable: function(){
-		var self = this, fx = this.fx.drag = [];
+		var self = this, fx = this.fx.drag = [], inbody = this.options.container === $(document.body);
 		var opts = {
-			container: this.options.container,
+			container: (this.options.restrict && !inbody ? this.options.container : null),
+			limit: (inbody ? {'x': [0], 'y': [0]} : {}),
 			snap: this.options.snap.drag,
 			onBeforeStart: function(){
 				this.shade = window.shade({ styles:{
