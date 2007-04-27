@@ -238,6 +238,9 @@ var Windoo = new Class({
 	/*
 	Property: buildDOM
 		internal, construct DOM structure of the window
+
+	Returns:
+		The Windoo.
 	*/
 
 	buildDOM: function(){
@@ -295,6 +298,9 @@ var Windoo = new Class({
 	/*
 	Property: buildButtons
 		internal, construct DOM structure of the window buttons
+
+	Returns:
+		The Windoo.
 	*/
 
 	buildButtons: function(){
@@ -326,6 +332,9 @@ var Windoo = new Class({
 	/*
 	Property: buildShadow
 		internal, construct window shadow element
+
+	Returns:
+		The Windoo.
 	*/
 
 	buildShadow: function(){
@@ -437,10 +446,13 @@ var Windoo = new Class({
 
 	/*
 	Property: setHTML
-		Set window content to a string
+		Set window content to a string; should not be used with 'iframe' window type.
 
 	Arguments:
 		content - the HTML content string
+
+	Returns:
+		The Windoo.
 	*/
 
 	setHTML: function(content){
@@ -449,40 +461,54 @@ var Windoo = new Class({
 	},
 
 	/*
-	Property: setHTML
-		Adopt the element as window content
+	Property: adopt
+		Inserts the passed element(s) inside the Windoo; should not be used with 'iframe' window type.
 
 	Arguments:
-		el - the $(el) element
+		el - an element reference or the id of the element to be injected inside
+
+	Returns:
+		The Windoo.
 	*/
 
-	adopt: function(el){
-		el = $(el);
-		this.dom.content.empty()
-		if (el){
-			if (el.getParent()) el.remove();
-			this.dom.content.adopt(el);
-			el.setStyles({'visibility': 'visible', 'display': 'block'});
-		}
+	adopt: function(){
+		this.dom.content.empty().adopt.apply(this.dom.content, arguments);
+		return this;
+	},
+
+	/*
+	Property: empty
+		Empties window content or set iframe source to 'about:blank' page.
+
+	Returns:
+		The Windoo.
+	*/
+
+	empty: function(){
+		if (this.dom.iframe) this.dom.iframe.src = 'about:blank';
+		else this.dom.content.empty();
 		return this;
 	},
 
 	/*
 	Property: setURL
-		Set URL to load into ifram/ajax window
+		Set URL to load into the window if window type is 'iframe'.
 
 	Arguments:
 		url - the url string to load
+
+	Returns:
+		The Windoo.
 	*/
 
 	setURL: function(url){
-		if (this.dom.iframe) this.dom.iframe.src=url;
+		if (this.dom.iframe) this.dom.iframe.src = url || 'about:blank';
 		return this;
 	},
 
 	/*
 	Property: getContent
-		Returns window content element
+		Returns window content element.
 	*/
 
 	getContent: function(){
@@ -491,10 +517,13 @@ var Windoo = new Class({
 
 	/*
 	Property: setTitle
-		Set window title
+		Set window title.
 
 	Arguments:
 		title - the title string
+
+	Returns:
+		The Windoo.
 	*/
 
 	setTitle: function(title){
@@ -504,12 +533,15 @@ var Windoo = new Class({
 
 	/*
 	Property: effect
-		Perform an action with registered action effect
+		Perform an action with registered action effect.
 
 	Arguments:
 		name - name of an action and effect
 		noeffect - if false, perform action without effect
 		onComplete - function to execute when the effect is finished
+
+	Returns:
+		The Windoo.
 	*/
 
 	effect: function(name, noeffect, onComplete){
@@ -522,10 +554,13 @@ var Windoo = new Class({
 
 	/*
 	Property: hide
-		Hide window
+		Hide window.
 
 	Arguments:
 		noeffect - optional, if true, hide window immediately without effect
+
+	Returns:
+		The Windoo.
 	*/
 
 	hide: function(noeffect){
@@ -534,14 +569,18 @@ var Windoo = new Class({
 			this.el.setStyle('visibility', 'hidden');
 			this.fix(true).fireEvent('onHide');
 		}.bind(this));
+		return this;
 	},
 
 	/*
-	Property: hide
-		Show window
+	Property: show
+		Show window.
 
 	Arguments:
 		noeffect - optional, if true, show window immediately without effect
+
+	Returns:
+		The Windoo.
 	*/
 
 	show: function(noeffect){
@@ -550,11 +589,15 @@ var Windoo = new Class({
 			this.el.setStyle('visibility', 'visible');
 			this.fix();
 		}.bind(this));
+		return this;
 	},
 
 	/*
 	Property: fix
-		internal, update window overlay and shadow
+		internal, update window overlay and shadow.
+
+	Returns:
+		The Windoo.
 	*/
 
 	fix: function(hide){
@@ -564,7 +607,10 @@ var Windoo = new Class({
 
 	/*
 	Property: fixShadow
-		internal, update shadow position and visibility according to the current window state
+		internal, update shadow position and visibility according to the current window state.
+
+	Returns:
+		The Windoo.
 	*/
 
 	fixShadow: function(hide){
@@ -583,7 +629,7 @@ var Windoo = new Class({
 
 	/*
 	Property: getState
-		Returns current window State see below
+		Returns current window State see below.
 
 	State:
 		outer - outer border coordinates;
@@ -603,12 +649,15 @@ var Windoo = new Class({
 	},
 
 	/*
-	Property: getState
-		Set window size (border size)
+	Property: setState
+		Set window size (outer border size).
 	
 	Arguments:
 		width - int, window width in pixels
 		height - int, window height in pixels
+
+	Returns:
+		The Windoo.
 	*/
 
 	setSize: function(width, height){
@@ -621,7 +670,7 @@ var Windoo = new Class({
 
 	/*
 	Property: positionAtCenter
-		Make window positioned at the browser window center
+		Make window positioned at the browser window center.
 	
 	Arguments:
 		offset - optional, window coordinates Offset object (see below)
@@ -629,6 +678,9 @@ var Windoo = new Class({
 	Offset:
 		x - int, horizontal offset
 		y - int, vertical offset
+
+	Returns:
+		The Windoo.
 	*/
 
 	positionAtCenter: function(offset){
@@ -643,11 +695,14 @@ var Windoo = new Class({
 
 	/*
 	Property: setPosition
-		Set window position
+		Set window position.
 	
 	Arguments:
 		x - int, horizontal coordinate in pixels;
 		y - int, certical coordinate in pixels;
+
+	Returns:
+		The Windoo.
 	*/
 
 	setPosition: function(x, y){
@@ -657,7 +712,7 @@ var Windoo = new Class({
 
 	/*
 	Property: close
-		Close (destroy) window
+		Close and destroy window.
 
 	Arguments:
 		noeffect - optional, if true, close window immediately without effect
@@ -675,10 +730,13 @@ var Windoo = new Class({
 
 	/*
 	Property: maximize
-		Toggle maximized window state
+		Toggle maximized window state.
 
 	Arguments:
 		noeffect - TODO, optional, if true, toggle window state immediately without effect
+
+	Returns:
+		The Windoo.
 	*/
 
 	maximize: function(noeffect){
@@ -711,10 +769,13 @@ var Windoo = new Class({
 
 	/*
 	Property: minimize
-		Toggle minimized window state (FIXME: add WM layout for minimized windows)
+		Toggle minimized window state (FIXME: add WM layout for minimized windows).
 
 	Arguments:
 		noeffect - optional, if true, toggle window state immediately without effect
+
+	Returns:
+		The Windoo.
 	*/
 
 	minimize: function(noeffect){
@@ -743,10 +804,13 @@ var Windoo = new Class({
 
 	/*
 	Property: shade
-		TODO, toggle shaded window state
+		TODO, toggle shaded window state.
 
 	Arguments:
 		noeffect - optional, if true, toggle window state immediately without effect
+
+	Returns:
+		The Windoo.
 	*/
 
 	shade: function(noeffect){
@@ -756,7 +820,10 @@ var Windoo = new Class({
 
 	/*
 	Property: openmenu
-		TODO, toggle window popup menu
+		TODO, toggle window popup menu.
+
+	Returns:
+		The Windoo.
 	*/
 
 	openmenu: function(){
@@ -766,10 +833,13 @@ var Windoo = new Class({
 
 	/*
 	Property: setZIndex
-		internal, set window z-index
+		internal, set window z-index.
 
 	Arguments:
 		z - z-index value
+
+	Returns:
+		The Windoo.
 	*/
 
 	setZIndex: function(z){
@@ -783,7 +853,10 @@ var Windoo = new Class({
 
 	/*
 	Property: focus
-		Bring focus to the window
+		Bring focus to the window.
+
+	Returns:
+		The Windoo.
 	*/
 
 	focus: function(){
@@ -794,7 +867,10 @@ var Windoo = new Class({
 
 	/*
 	Property: blur
-		Remove focus from the window (if focused)
+		Remove focus from the window if focused.
+
+	Returns:
+		The Windoo.
 	*/
 
 	blur: function(){
@@ -805,7 +881,10 @@ var Windoo = new Class({
 
 	/*
 	Property: bringTop
-		Put window on top of others
+		Put window on top of the others.
+
+	Returns:
+		The Windoo.
 	*/
 
 	bringTop: function(){
@@ -847,7 +926,7 @@ Windoo.Manager = new Class({
 
 	/*
 	Property: maxZIndex
-		Returns maximal z-index value of all windows
+		Returns maximal z-index value of all windows.
 	*/
 
 	maxZIndex: function(){
@@ -861,7 +940,7 @@ Windoo.Manager = new Class({
 
 	/*
 	Property: register
-		internal, register new window in the manager
+		internal, register new window in the manager.
 	*/
 
 	register: function(win){
@@ -872,7 +951,7 @@ Windoo.Manager = new Class({
 
 	/*
 	Property: unregister
-		internal, unregister window
+		internal, unregister window.
 	*/
 
 	unregister: function(win){
@@ -882,7 +961,7 @@ Windoo.Manager = new Class({
 
 	/*
 	Property: focus
-		internal, set focus to the window
+		internal, set focus to the window.
 
 	Arguments:
 		win - window to set as focused
@@ -899,7 +978,7 @@ Windoo.Manager = new Class({
 
 	/*
 	Property: blur
-		internal, remove focus from the window if focused. Returns true if focus is removed
+		internal, remove focus from the window if focused. Returns true if focus is removed.
 
 	Arguments:
 		win - window to remove focus from
