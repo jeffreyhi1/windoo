@@ -476,7 +476,7 @@ var Windoo = new Class({
 	*/
 
 	setURL: function(url){
-		this.dom.iframe.src=url;
+		if (this.dom.iframe) this.dom.iframe.src=url;
 		return this;
 	},
 
