@@ -176,7 +176,7 @@ Drag.Multi = Drag.Base.extend({
 				unit: $pick(options.unit, this.options.unit),
 				style: options.modifiers[z],
 				direction: options.direction[z],
-				base_limit: options.limit[z],
+				baseLimit: options.limit[z],
 				grid: options.grid[z],
 				bind: $pick(options.bind[z], options.bind),
 				fn: $pick(options.fn[z], Drag.Transition.linear)
@@ -226,10 +226,10 @@ Drag.Multi = Drag.Base.extend({
 				mod.now = mod.element.getStyle(mod.style).toInt();
 				mod.start = mod.fn.step(mod.now, mouse, mod.direction, true);
 				mod.limit = [];
-				if (mod.base_limit){
-					var limit = mod.base_limit;
+				if (mod.baseLimit){
+					var limit = mod.baseLimit;
 					for (var i = 0; i < 2; i++){
-						if ($chk(limit[i])) mod.limit[i] = limit[i].apply ? limit[i].call(this,mod) : limit[i];
+						if ($chk(limit[i])) mod.limit[i] = ($type(limit[i]) == "function") ? limit[i](mod) : limit[i];
 					}
 				}
 			}, this);
