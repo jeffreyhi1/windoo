@@ -622,13 +622,13 @@ var Windoo = new Class({
 
 	fixShadow: function(){
 		if (this.shadow){
-			if (this.visible){
+			if (this.maximized){
+				this.shadow.setStyle('display', 'none');
+			} else if (this.visible){
 				var pos = this.el.getCoordinates(), pad = this.theme.shadowDisplace;
 				this.shadow.setStyles({'display': '', 'z-index': '' + (this.zIndex - 1),
 					'left': this.el.offsetLeft + pad.left, 'top': this.el.offsetTop + pad.top,
 					'width': pos.width + pad.width, 'height': pos.height + pad.height});
-			} else if (!this.maximized){
-				this.shadow.setStyle('display', 'none');
 			}
 		}
 		return this;
