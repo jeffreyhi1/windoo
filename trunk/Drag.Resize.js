@@ -243,7 +243,7 @@ Drag.Resize = new Class({
 					var value = sign * (cc[props[0]] - ec[props[1]]);
 					switch ($type(lim)){
 						case "number": return Math.min(value, lim);
-						case "function": return Math.min(value, lim.call(this, mod));
+						case "function": return Math.min(value, lim(mod));
 						default: return value;
 					}
 				};
@@ -267,7 +267,7 @@ Drag.Resize = new Class({
 					var value = ec[props[1]] - cc[props[0]] - rlim;
 					switch (lim_type){
 						case "number": return Math[op](value, lim);
-						case "function": return Math[op](value, lim.call(this, mod));
+						case "function": return Math[op](value, lim(mod));
 						default: return value;
 					}
 				};

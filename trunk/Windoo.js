@@ -992,6 +992,7 @@ Windoo.Manager = new Class({
 
 	unregister: function(win){
 		this.hash.remove(win);
+		if (this.focused === win) this.focused = false;
 		return this.fireEvent('onUnregister', win);
 	},
 
