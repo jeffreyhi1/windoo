@@ -10,7 +10,7 @@ Copyright:
 	copyright (c) 2007 Yevgen Gorshkov
 
 TODO:
-	- automatically convert <img> into resiable <div> container
+	- automatically convert <img> into resizable <div> container
 */
 
 /*

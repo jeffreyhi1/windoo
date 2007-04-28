@@ -16,7 +16,7 @@ TODO:
 	- modals / confirm / alert
 	- refactor action effects (make effects customizable)
 	- manage minimized windows with window manager
-	- ghost_drag option
+	- ghost.drag option
 	- window shade and popup menu
 	- more themes
 	- cascade window positioning
@@ -24,7 +24,7 @@ TODO:
 */
 
 
-//* mootools fix for Drag.Move to make it work correctly for absolutely positioned container too and element
+//* mootools fix for Drag.Move to make it work correctly for absolutele positioned container too and element
 //* breaks compatibility when the element is not inside the container 
 Drag.Move.prototype.start = function(event){
 	this.overed = null;
@@ -93,12 +93,12 @@ Buttons:
 Buttons display values:
 	true - display button
 	false - do not create buttons
-	'diabled' - display inactive button
+	'disabled' - display inactive button
 
 Effects:
-	close - ?
-	hide - ?
-	show - ?
+	close - effect object started on window close; see: <Fx.Styles>
+	hide - effect object started on window hide; see: <Fx.Styles>
+	show - effect object started on window show; see: <Fx.Styles>
 
 Events:
 	onFocus - optional, function to execute when window obtains focus;
@@ -271,7 +271,7 @@ var Windoo = new Class({
 			return '<div class="' + prefix + '-left ' + _p + '-drag"><div class="' + prefix + '-right"><div class="' + contentClass + '"></div></div></div>';
 		};
 		var iefix = window.ie && this.options.type != 'iframe',
-			body = iefix ? '<table style="border-collapse:collapse;padding:0;cell-padding:0;width:100%;"><tr><td style="overflow:auto;"></td></tr></table>' : '';
+			body = iefix ? '<table style="position:absolute;top:0;left:0;border:none;border-collapse:collapse;padding:0;cell-padding:0;"><tr><td style="border:none;overflow:auto;position:relative;"></td></tr></table>' : '';
 		this.innerContent = '<div class="' + _p + '-frame">' + $row("top", "title") + $row("bot", "strut") + '</div>'
 			+ '<div class="' + _p + '-body">' + body + '</div>';
 		this.el.setHTML(this.innerContent).inject(this.options.container);
@@ -294,7 +294,7 @@ var Windoo = new Class({
 				'class': _p + '-body',
 				'styles': {'width': '100%', 'height': '100%'}
 			});
-			this.dom.body.setStyle('overflow','hidden');
+			this.dom.body.setStyle('overflow', 'hidden');
 			this.adopt(this.dom.iframe).setURL(this.options.url);
 		}
 		return this.buildShadow().buildButtons();
@@ -386,7 +386,7 @@ var Windoo = new Class({
 				else self.fireEvent('onStartResize', this);
 			},
 			onResize: function(){
-				if (!self.options.ghost.resize) self.fix();
+				if (!this.ghost) self.fixShadow();
 				self.fireEvent('onResize', this);
 			},
 			onComplete: function(){
@@ -397,7 +397,7 @@ var Windoo = new Class({
 				self.fix().fireEvent('onResizeComplete', this);
 			},
 			onBuild: function(dir, binds){
-				if (!binds.y || this.ghost) return;
+				if (this.ghost || !binds.y) return;
 				var fx = this.fx[dir];
 
 				['strut','body'].each(function(name){
@@ -435,7 +435,7 @@ var Windoo = new Class({
 				else self.fireEvent('onStartDrag', this);
 			},
 			onDrag: function(){
-				if (!self.options.ghost.drag) self.fix();
+				if (!self.shadow) self.fix();
 				self.fireEvent('onDrag', this);
 			},
 			onComplete: function(){
@@ -593,6 +593,7 @@ var Windoo = new Class({
 		if (this.visible) return this;
 		this.visible = true;
 		this.fireEvent('onShow').bringTop();
+		this.el.fixOverlay();
 		return this.effect('show', noeffect, function(){
 			this.el.setStyle('visibility', 'visible');
 			this.fix();
