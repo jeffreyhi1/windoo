@@ -176,16 +176,16 @@ var Windoo = new Class({
 		wm: false,
 		effects: {
 			show: {
-				options: { duration: 600 },
-				styles: { 'opacity': [0,1] }
+				options: {'duration': 600},
+				styles: {'opacity': [0,1]}
 			},
 			close: {
-				options: { duration: 600 },
-				styles: { 'opacity': [1,0] }
+				options: {'duration': 600},
+				styles: {'opacity': [1,0]}
 			},
 			hide: {
-				options: { duration: 600 },
-				styles: { 'opacity': [1,0] }
+				options: {'duration': 600},
+				styles: {'opacity': [1,0]}
 			}
 		},
 		onFocus: Class.empty,
@@ -373,7 +373,7 @@ var Windoo = new Class({
 			classPrefix: theme.classPrefix + '-sizer ' + theme.classPrefix + '-',
 			shadeBackground: theme.shadeBackground,
 
-			container: (opt.restrict || inbody ? opt.container : false),
+			container: (opt.restrict && !inbody) ? opt.container : false,
 			resizeLimit: opt.resizeLimit,
 			ghost: opt.ghost.resize,
 			snap: opt.snap.resize,
