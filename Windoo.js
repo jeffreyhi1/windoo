@@ -435,8 +435,7 @@ var Windoo = new Class({
 				else self.fireEvent('onStartDrag', this);
 			},
 			onDrag: function(){
-				if (!self.shadow) self.fix();
-				self.fireEvent('onDrag', this);
+				self.fix().fireEvent('onDrag', this);
 			},
 			onComplete: function(){
 				this.shade.remove();
