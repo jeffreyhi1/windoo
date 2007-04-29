@@ -160,7 +160,7 @@ Drag.Multi = Drag.Base.extend({
 	*/
 
 	add: function(el, options){
-		var result={};
+		var result = {};
 		options = $merge(this.elementOptions, options);
 		el = $(el);
 		if ($type(options.grid) == 'number') options.grid = {'x': options.grid, 'y': options.grid};
@@ -168,8 +168,7 @@ Drag.Multi = Drag.Base.extend({
 
 		for (var z in options.modifiers){
 			if (!options.modifiers[z]) continue;
-			if (this.modifiers[z] == undefined) this.modifiers[z] = [];
-
+			if (!$defined(this.modifiers[z])) this.modifiers[z] = [];
 			var opts = {
 				modifier: z,
 				element: el,
@@ -181,19 +180,17 @@ Drag.Multi = Drag.Base.extend({
 				bind: $pick(options.bind[z], options.bind),
 				fn: $pick(options.fn[z], Drag.Transition.linear)
 			};
-
 			if (opts.bind) opts.bind.binded = true;
-
+			
 			var sign = opts.style.slice(0,1);
 			if (sign == '-' || sign == '+'){
-				opts.direction = (sign+1).toInt();
+				opts.direction = (sign + 1).toInt();
 				opts.style = opts.style.slice(1);
 			}
 			
 			this.modifiers[z].push(opts);
 			result[z] = opts;
 		}
-		
 		if(!this.element.contains(el)) this.element.push(el);
 		return result;
 	},
@@ -257,14 +254,8 @@ Drag.Multi = Drag.Base.extend({
 
 	drag: function(event){
 		this.mouse.now = event.page;
-		for (var z in this.modifiers)
-			this.modifiers[z].each(this.modifierUpdate, this);
-
-		for (var z in this.modifiers)
-			this.modifiers[z].each(function(mod){
-				mod.element.setStyle(mod.style, mod.now + mod.unit);
-			}, this);
-
+		for (var z in this.modifiers) this.modifiers[z].each(this.modifierUpdate, this);
+		for (var z in this.modifiers) this.modifiers[z].each(function(mod){ mod.element.setStyle(mod.style, mod.now + mod.unit); }, this);
 		this.fireEvent('onDrag', this.element);
 		event.stop();
 	}
