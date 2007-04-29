@@ -122,21 +122,22 @@ Events:
 
 Example:
 	(start code)
+	var content = $('win1');
 	new Windoo({
 		left: 600,
-		top:100,
-		title:'Regular window',
-		container: $('win1').getParent(),
+		top: 100,
+		title: 'Regular window',
+		container: $('container'),
 		position: false
-	}).adopt('win1').show();
+	}).adopt(content).show();
 
 	// centered iframe window with ghost drag and resize
 	new Windoo({
-		width:640,
-		height:480,
+		width: 640,
+		height: 480,
 		resizeLimit: {'x':[250], 'y':[200]},
-		title:'IFrame window',
-		type:'iframe',
+		title: 'IFrame window',
+		type: 'iframe',
 		container: false,
 		ghost: {resize: true, drag: true},
 		url: 'http://mootools.net'
@@ -177,15 +178,15 @@ var Windoo = new Class({
 		effects: {
 			show: {
 				options: {'duration': 600},
-				styles: {'opacity': [0,1]}
+				styles: {'opacity': [0, 1]}
 			},
 			close: {
 				options: {'duration': 600},
-				styles: {'opacity': [1,0]}
+				styles: {'opacity': [1, 0]}
 			},
 			hide: {
 				options: {'duration': 600},
-				styles: {'opacity': [1,0]}
+				styles: {'opacity': [1, 0]}
 			}
 		},
 		onFocus: Class.empty,
@@ -222,7 +223,7 @@ var Windoo = new Class({
 
 		['x', 'y'].each(function(z){
 			var lim = this.options.resizeLimit;
-			if($type(lim[z][0]) == "number")
+			if ($type(lim[z][0]) == "number")
 				lim[z][0] = Math.max(lim[z][0], theme.resizeLimit[z][0])
 		}, this);
 
@@ -265,7 +266,7 @@ var Windoo = new Class({
 			}
 		});
 
-		if(this.options['class']) this.el.addClass(this.options['class']);
+		if (this.options['class']) this.el.addClass(this.options['class']);
 
 		var $row = function(prefix, contentClass){
 			return '<div class="' + prefix + '-left ' + _p + '-drag"><div class="' + prefix + '-right"><div class="' + contentClass + '"></div></div></div>';
@@ -275,7 +276,7 @@ var Windoo = new Class({
 		this.innerContent = '<div class="' + _p + '-frame">' + $row("top", "title") + $row("bot", "strut") + '</div>'
 			+ '<div class="' + _p + '-body">' + body + '</div>';
 		this.el.setHTML(this.innerContent).inject(this.options.container);
-		if(window.ie) this.el.addClass(_p + '-' + theme.name + '-ie');
+		if (window.ie) this.el.addClass(_p + '-' + theme.name + '-ie');
 
 		this.dom = {
 			frame: this.el.getFirst(),
@@ -310,12 +311,7 @@ var Windoo = new Class({
 
 	buildButtons: function(){
 		var self = this, buttons = this.options.buttons, _p = this.theme.classPrefix;
-		var action = function(name, bind){
-			return function(ev){
-				new Event(ev).stop();
-				(bind[name])();
-			};
-		};
+		var action = function(name, bind){ return function(ev){ new Event(ev).stop(); (bind[name])(); }; };
 		this.bound.noaction = function(ev){ new Event(ev).stop(); };
 		var makeButton = function(opt, name, title, action){
 			self.bound[name] = action;
@@ -351,11 +347,11 @@ var Windoo = new Class({
 		}).injectAfter(this.el);
 		if (theme.shadow == 'image'){
 			var $row = function(name){
-				var els = ['l','r','m'].map(function(e){ return new Element('div', {'class': e}); });
+				var els = ['l', 'r', 'm'].map(function(e){ return new Element('div', {'class': e}); });
 				var el = new Element('div', {'class': name});
 				return el.adopt.apply(el, els);
 			};
-			this.shadow.adopt($row('top'), $row('bot'));
+			this.shadow.adopt($row('top'), this.dom.shm = $row('mid'), $row('bot'));
 		}
 		return this;
 	},
@@ -399,9 +395,8 @@ var Windoo = new Class({
 			onBuild: function(dir, binds){
 				if (this.ghost || !binds.y) return;
 				var fx = this.fx[dir];
-
-				['strut','body'].each(function(name){
-					fx.add(this[name], {
+				['strut', 'body', 'shm'].each(function(name){
+					if (this[name]) fx.add(this[name], {
 						bind: binds.y,
 						direction: {'y': binds.y.y.direction},
 						modifiers: {'y': 'height'}
@@ -426,7 +421,7 @@ var Windoo = new Class({
 				this.shade = window.shade({ styles:{
 					'cursor': this.options.handle.getStyle('cursor'),
 					'background': self.theme.shadeBackground,
-					'z-index': 1000
+					'zIndex': '1000'
 				}});
 				self.fireEvent('onBeforeDrag', this).focus();
 			},
@@ -626,9 +621,10 @@ var Windoo = new Class({
 				this.shadow.setStyle('display', 'none');
 			} else if (this.visible){
 				var pos = this.el.getCoordinates(), pad = this.theme.shadowDisplace;
-				this.shadow.setStyles({'display': '', 'z-index': '' + (this.zIndex - 1),
+				this.shadow.setStyles({'display': '', 'zIndex': (this.zIndex - 1),
 					'left': this.el.offsetLeft + pad.left, 'top': this.el.offsetTop + pad.top,
 					'width': pos.width + pad.width, 'height': pos.height + pad.height});
+				if (this.dom.shm) this.dom.shm.setStyle('height', pos.height - pad.delta);
 			}
 		}
 		return this;
@@ -969,7 +965,7 @@ Windoo.Manager = new Class({
 		var windows = this.hash;
 		if (!windows.length) return this.options.zIndex;
 		var zindex = [];
-		windows.each(function(item){ zindex.push(item.zIndex);});
+		windows.each(function(item){ this.push(item.zIndex);}, zindex);
 		zindex.sort(function(a, b){ return a - b; });
 		return zindex.getLast() + 3;
 	},
