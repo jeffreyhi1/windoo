@@ -271,22 +271,20 @@ var Windoo = new Class({
 		var $row = function(prefix, contentClass){
 			return '<div class="' + prefix + '-left ' + _p + '-drag"><div class="' + prefix + '-right"><div class="' + contentClass + '"></div></div></div>';
 		};
-		var iefix = window.ie && this.options.type != 'iframe',
-			body = iefix ? '<table style="position:absolute;top:0;left:0;border:none;border-collapse:collapse;padding:0;cell-padding:0;"><tr><td style="border:none;overflow:auto;position:relative;"></td></tr></table>' : '';
+		var iefix = window.ie && this.options.type != 'iframe';
 		this.innerContent = '<div class="' + _p + '-frame">' + $row("top", "title") + $row("bot", "strut") + '</div>'
-			+ '<div class="' + _p + '-body">' + body + '</div>';
+			+ '<div class="' + _p + '-body">' + (iefix ? Windoo.ieTableCell : '') + '</div>';
 		this.el.setHTML(this.innerContent).inject(this.options.container);
 		if (window.ie) this.el.addClass(_p + '-' + theme.name + '-ie');
 
+		var frame = this.el.getFirst(), body = this.el.getLast();
 		this.dom = {
-			frame: this.el.getFirst(),
-			body: this.el.getLast()
+			frame: frame,
+			body: body,
+			title: frame.getElement('.title'),
+			strut: frame.getElement('.strut'),
+			content: iefix ? body.getElement('td') : body
 		};
-		$extend(this.dom, {
-			title: this.dom.frame.getElement('.title'),
-			strut: this.dom.frame.getElement('.strut'),
-			content: iefix ? this.dom.body.getElement('td') : this.dom.body
-		});
 		this.dom.title.addEvent('dblclick', this.maximize.bind(this));
 
 		if (this.options.type == 'iframe'){
@@ -382,7 +380,6 @@ var Windoo = new Class({
 				else self.fireEvent('onStartResize', this);
 			},
 			onResize: function(){
-				if (!this.ghost) self.fixShadow();
 				self.fireEvent('onResize', this);
 			},
 			onComplete: function(){
@@ -393,15 +390,17 @@ var Windoo = new Class({
 				self.fix().fireEvent('onResizeComplete', this);
 			},
 			onBuild: function(dir, binds){
-				if (this.ghost || !binds.y) return;
+				if (this.ghost) return;
 				var fx = this.fx[dir];
-				['strut', 'body', 'shm'].each(function(name){
-					if (this[name]) fx.add(this[name], {
-						bind: binds.y,
-						direction: {'y': binds.y.y.direction},
-						modifiers: {'y': 'height'}
-					});
+				if (binds.resize.y) ['strut', 'body', 'shm'].each(function(name){
+					if (this[name]) fx.add(this[name], {'y': {direction: binds.resize.y.direction, style: 'height'}}, binds.resize);
 				}, self.dom);
+				[self.shadow, self.el.fixOverlayElement].each(function(el){
+					if (el){
+						fx.add(el, binds.resize, binds.resize);
+						if (binds.move) fx.add(el, binds.move, binds.move);
+					}
+				}, self);
 			}
 		});
 	},
@@ -911,6 +910,8 @@ var Windoo = new Class({
 });
 Windoo.implement(new Options);
 Windoo.implement(new Events);
+
+Windoo.ieTableCell = '<table style="position:absolute;top:0;left:0;border:none;border-collapse:collapse;padding:0;cell-padding:0;"><tr><td style="border:none;overflow:auto;position:relative;"></td></tr></table>';
 
 
 /*

@@ -172,7 +172,6 @@ Drag.Resize = new Class({
 			};
 			['nw','ne','sw','se'].each(function(z){ delete this[z]; }, this.options.direction);
 		}
-
 		if (this.options.ghost){
 			this.ghost = new Element('div', {'class': this.options.ghostClass, 'styles': {'display': 'none'}}).injectAfter(this.el);
 			for (var d in this.options.direction) this.ghost.adopt(new Element('div', {'class': this.options.classPrefix + d}));
@@ -188,7 +187,6 @@ Drag.Resize = new Class({
 					'background': self.options.shadeBackground,
 					'z-index': self.options.zIndex + 1
 				}});
-
 				if (self.ghost){
 					var ce = self.el.getCoordinates();
 					self.ghost.setStyles({
@@ -276,6 +274,8 @@ Drag.Resize = new Class({
 		};
 
 		var opt = this.options, el = this.ghost ? this.ghost : this.el;
+		if ($type(opt.grid) == 'number') opt.grid = {'x': opt.grid, 'y': opt.grid};
+
 		for (var d in opt.direction){
 			var mod = opt.direction[d];
 			rOpts.handle = new Element('div', {'class': opt.classPrefix + d}).inject(this.el);
@@ -284,47 +284,52 @@ Drag.Resize = new Class({
 				'x': rlimitFcn(mod.x, opt.limiter.x['' + mod.x], opt.resizeLimit.x),
 				'y': rlimitFcn(mod.y, opt.limiter.y['' + mod.y], opt.resizeLimit.y)
 			};
-			var moveOpts = {
-				limit: {
-					'x': mlimitFcn(opt.moveLimiter.x, opt.moveLimit.x, opt.resizeLimit.x),
-					'y': mlimitFcn(opt.moveLimiter.y, opt.moveLimit.y, opt.resizeLimit.y)
-				},
-				grid: opt.grid,
-				modifiers: {}
-			};
-			for (var z in mod) if (mod[z] < 0) moveOpts.modifiers[z] = opt.modifiers[z];
-			var binds = {move: drag.add(el, moveOpts)};
-			if (mod.x != undefined){
-				binds.x = drag.add(el, {
-					limit: mod.x < 0 ? false : resizeLimit,
-					grid: mod.x < 0 ? false : opt.grid,
-					bind: mod.x < 0 ? binds.move : false,
-					modifiers: {'x': opt.modifiers.width},
-					direction: {'x': mod.x}
-				});
-				if (this.options.preserveRatio)
-					binds.xAspect = drag.add(el, {
-						bind: binds.x,
-						fn: this.aspectStep,
-						modifiers: {'x': opt.modifiers.height},
-						direction: {'x': mod.x}
-					});
+			var moveOpts = {};
+			for (var z in mod){
+				if (mod[z] < 0){
+					moveOpts[z] = {
+						limit: mlimitFcn(opt.moveLimiter[z], opt.moveLimit[z], opt.resizeLimit[z]),
+						style: opt.modifiers[z],
+						grid: opt.grid.x
+					};
+				}
 			}
-			if (mod.y != undefined){
-				binds.y = drag.add(el, {
-					limit: mod.y < 0 ? false : resizeLimit,
-					grid: mod.y < 0 ? false : opt.grid,
-					bind: mod.y < 0 ? binds.move : false,
-					modifiers: {'y': opt.modifiers.height},
-					direction: {'y': mod.y}
-				});
-				if (this.options.preserveRatio)
-					binds.yAspect = drag.add(el, {
-						bind: binds.y,
-						fn: this.aspectStep,
-						modifiers: {'y': opt.modifiers.width},
-						direction: {'y': mod.y}
-					});
+
+			var binds = {move: drag.add(el, moveOpts)}, resize = {opts: {}, bind: {}};
+			if ($defined(mod.x)){
+				resize.opts.x = {
+					limit: mod.x < 0 ? false : resizeLimit.x,
+					grid: mod.x < 0 ? false : opt.grid.x,
+					style: opt.modifiers.width,
+					direction: mod.x
+				};
+				if (mod.x < 0) resize.bind.x = binds.move.x;
+			}
+			if ($defined(mod.y)){
+				resize.opts.y = {
+					limit: mod.y < 0 ? false : resizeLimit.y,
+					grid: mod.y < 0 ? false : opt.grid.y,
+					style: opt.modifiers.height,
+					direction: mod.y
+				};
+				if (mod.y < 0) resize.bind.y = binds.move.y;
+			}
+			binds.resize = drag.add(el, resize.opts, resize.bind);
+
+			if (opt.preserveRatio){
+				var aspect = {
+					'x': {
+						fn: this.aspectStep.x,
+						style: ($defined(mod.x)) ? opt.modifiers.height : null,
+						direction: mod.x
+					},
+					'y': {
+						fn: this.aspectStep.y,
+						style: ($defined(mod.y)) ? opt.modifiers.width : null,
+						direction: mod.y
+					}
+				};
+				binds.aspect = drag.add(el, aspect, binds.resize);
 			}
 			this.fireEvent('onBuild', [d, binds]);
 		}
@@ -376,11 +381,16 @@ Element.extend({
 	/*
 	Property: remove
 		Removes the Element from the DOM. Also removes overlay element if present.
+
+	Arguments:
+		trash - if true empties the element and collects it from garbage.
 	*/
 
-	remove: function(){
-		if (this.fixOverlayElement) this.fixOverlayElement.remove();
-		return this.parentNode.removeChild(this);
+	remove: function(trash){
+		if (this.fixOverlayElement) this.fixOverlayElement.remove(trash);
+		this.parentNode.removeChild(this);
+		if (trash){ Garbage.trash([this.empty()]); return false; }
+		return this;
 	},
 
 	/*
