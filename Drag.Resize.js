@@ -345,8 +345,7 @@ Drag.Resize = new Class({
 	}
 
 });
-Drag.Resize.implement(new Options);
-Drag.Resize.implement(new Events);
+Drag.Resize.implement(new Events, new Options);
 
 /*
 Class: Element
