@@ -1039,18 +1039,11 @@ Class: Windoo.Themes
 Windoo.Themes = {
 
 	/*
-	Property: cssPath
-		Path to default theme CSS directory
+	Property: cssFirefoxMac
+		Firefox/Mac-specific CSS; fixes overlapping scrollbars bug for Windoo
 	*/
 
-	cssPath: '/css/',
-
-	/*
-	Property: cssPath
-		Firefox/Mac-specific CSS file name
-	*/
-
-	ffMacCss: 'ffmac.css',
+	cssFirefoxMac: '.windoo-blur * {overflow: hidden !important;}',
 
 	/*
 	Property: aero
@@ -1091,5 +1084,4 @@ Windoo.Themes = {
 	}
 };
 
-// FF/Mac overlapping scrollbar fix
-if (window.gecko && navigator.appVersion.indexOf('acintosh') >= 0) window.addEvent('domready', function(){ new Asset.css(Windoo.Themes.cssPath + Windoo.Themes.ffMacCss); });
+if (window.gecko && navigator.appVersion.indexOf('acintosh') >= 0) window.addEvent('domready', function(){ new Element('style', {'type': 'text/css', 'media': 'all'}).inject(document.head).appendText(Windoo.Themes.cssFirefoxMac); });
