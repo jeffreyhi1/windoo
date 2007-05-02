@@ -23,7 +23,6 @@ Drag.Transition = {
 	}
 };
 
-
 /*
 Class: Drag.Multi
 	Modify multiple css properties of multiple elements based on the position of the mouse.
@@ -127,12 +126,14 @@ Drag.Multi = Drag.Base.extend({
 	/*
 	Property: add
 		Add element to modify its css properties based on the position of the mouse.
-		Returns Bind object (see Options below) to use as bind option for other obects and properties.
+
+	Returns:
+		Bind object.
 
 	Arguments:
 		el - the $(element) to apply the transformations to.
 		options - The options object.
-		bind - The bind object (see <Bind> below).
+		bind - The Bind object (see <Bind> below).
 
 	Options:
 		x - optional, the Modifier object (see below).

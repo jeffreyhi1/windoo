@@ -23,9 +23,9 @@ TODO:
 	- container vs wm
 */
 
-
 //* mootools fix for Drag.Move to make it work correctly for absolutele positioned container too and element
 //* breaks compatibility when the element is not inside the container 
+
 Drag.Move.prototype.start = function(event){
 	this.overed = null;
 	if (this.container){
@@ -40,8 +40,6 @@ Drag.Move.prototype.start = function(event){
 	}
 	Drag.Base.prototype.start.call(this, event);
 };
-
-
 
 /*
 Class: Windoo
@@ -908,11 +906,8 @@ var Windoo = new Class({
 	}
 
 });
-Windoo.implement(new Options);
-Windoo.implement(new Events);
-
+Windoo.implement(new Events, new Options);
 Windoo.ieTableCell = '<table style="position:absolute;top:0;left:0;border:none;border-collapse:collapse;padding:0;cell-padding:0;"><tr><td style="border:none;overflow:auto;position:relative;"></td></tr></table>';
-
 
 /*
 Class: Windoo.Ajax
@@ -928,7 +923,6 @@ Windoo.Ajax = Ajax.extend({
 		this.parent();
 	}
 });
-
 
 /*
 Class: Windoo.Manager
@@ -1028,8 +1022,7 @@ Windoo.Manager = new Class({
 	}
 
 });
-Windoo.Manager.implement(new Options);
-Windoo.Manager.implement(new Events);
+Windoo.Manager.implement(new Events, new Options);
 
 /*
 Property: Windoo.$wm
