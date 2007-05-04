@@ -16,11 +16,10 @@ TODO:
 	- modals / confirm / alert
 	- refactor action effects (make effects customizable)
 	- manage minimized windows with window manager
-	- ghost.drag option
 	- window shade and popup menu
 	- more themes
 	- cascade window positioning
-	- container vs wm
+	- zindex for container vs wm
 */
 
 //* mootools fix for Drag.Move to make it work correctly for absolutele positioned container too and element
@@ -137,7 +136,7 @@ Example:
 		title: 'IFrame window',
 		type: 'iframe',
 		container: false,
-		ghost: {resize: true, drag: true},
+		ghost: {resize: true, move: true},
 		url: 'http://mootools.net'
 	}).show();
 	(end)
@@ -156,8 +155,8 @@ var Windoo = new Class({
 		resizable: true,
 		draggable: true,
 		resizeLimit: {'x': [0], 'y': [0]},
-		ghost: {'resize': false, 'drag': false},
-		snap: {'resize': 6, 'drag': 6},
+		ghost: {'resize': false, 'move': false},
+		snap: {'resize': 6, 'move': 6},
 		destroyOnClose: true,
 		container: null,
 		restrict: true,
@@ -413,13 +412,24 @@ var Windoo = new Class({
 		var opts = {
 			container: (this.options.restrict && !inbody ? this.options.container : null),
 			limit: (inbody ? {'x': [0], 'y': [0]} : {}),
-			snap: this.options.snap.drag,
+			snap: this.options.snap.move,
 			onBeforeStart: function(){
 				this.shade = window.shade({ styles:{
 					'cursor': this.options.handle.getStyle('cursor'),
 					'background': self.theme.shadeBackground,
 					'zIndex': '1000'
 				}});
+				if (self.ghost){
+					var ce = self.el.getSize().size;
+					this.element.setStyles({
+						'display': 'block',
+						'zIndex': self.el.getStyle('z-index').toInt()+10,
+						'left': self.el.getStyle('left'),
+						'top': self.el.getStyle('top'),
+						'width': ce.x,
+						'height': ce.y
+					});
+				}
 				self.fireEvent('onBeforeDrag', this).focus();
 			},
 			onStart: function(){
@@ -431,12 +441,20 @@ var Windoo = new Class({
 			},
 			onComplete: function(){
 				this.shade.remove();
+				if (self.ghost){
+					for (var z in this.options.modifiers){
+						var style = this.options.modifiers[z];
+						self.el.setStyle(style, this.element.getStyle(style));
+					}
+					this.element.setStyle('display', 'none');
+				}
 				self.fix().fireEvent('onDragComplete', this);
 			}
 		};
+		if (this.options.ghost.move) this.ghost = new Element('div', {'class': this.theme.ghostClass, 'styles': {'display': 'none'}}).injectAfter(this.el);
 		this.el.getElements('.' + this.theme.classPrefix + '-drag').each(function(d){
 			opts.handle = d;
-			fx.push(this.el.makeDraggable(opts));
+			fx.push((this.ghost || this.el).makeDraggable(opts));
 		}, this);
 	},
 
