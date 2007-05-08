@@ -640,10 +640,7 @@ var Windoo = new Class({
 		outer.right -= cont.left;
 		outer.bottom -= cont.top;
 		outer.left -= cont.left;
-		return {
-			outer: outer,
-			inner: this.dom.content.getSize()
-		};
+		return {outer: outer, inner: this.dom.content.getSize()};
 	},
 
 	/*
@@ -756,6 +753,10 @@ var Windoo = new Class({
 		for (var z in this) this[z] = null;
 	},
 
+	classPrefix: function(klass){
+		return [this.theme.classPrefix, this.theme.name, klass + ' ' + this.theme.classPrefix, klass].join('-');
+	},
+
 	/*
 	Property: maximize
 		Toggle maximized window state.
@@ -775,8 +776,7 @@ var Windoo = new Class({
 			if (limit.length > 1 && value > limit[1]) return limit[1];
 			return value;
 		};
-		var klass = [this.theme.classPrefix, this.theme.name, 'maximized'].join('-')
-			+ ' ' + this.theme.classPrefix + '-maximized';
+		var klass = this.classPrefix('maximized');
 		this.maximized = !this.maximized;
 		this.minimized = false;
 		if (this.maximized){
@@ -807,8 +807,7 @@ var Windoo = new Class({
 	*/
 
 	minimize: function(noeffect){
-		var klass = [this.theme.classPrefix, this.theme.name, 'minimized'].join('-')
-			+ ' ' + this.theme.classPrefix + '-minimized';
+		var klass = this.classPrefix('minimized');
 		this.minimized = !this.minimized;
 		if (this.minimized){
 			this.$restoreMini = this.getState();
@@ -857,7 +856,7 @@ var Windoo = new Class({
 	setZIndex: function(z){
 		this.zIndex = z;
 		this.el.setStyle('zIndex', z);
-		if (this.el.fixOverlayElement) $(this.el.fixOverlayElement).setStyle('zIndex', z - 1);
+		if (this.el.fixOverlayElement) this.el.fixOverlayElement.setStyle('zIndex', z - 1);
 		if (this.shadow) this.shadow.setStyle('zIndex', z - 1);
 		if (this.fx.resize) this.fx.resize.options.zIndex = z + 1;
 		return this;
