@@ -16,29 +16,11 @@ TODO:
 	- modals / confirm / alert
 	- refactor action effects (make effects customizable)
 	- manage minimized windows with window manager
-	- window shade and popup menu
+	- window popup menu
 	- more themes
 	- cascade window positioning
 	- zindex for container vs wm
 */
-
-//* mootools fix for Drag.Move to make it work correctly for absolutele positioned container too and element
-//* breaks compatibility when the element is not inside the container 
-
-Drag.Move.prototype.start = function(event){
-	this.overed = null;
-	if (this.container){
-		var cont = this.container.getCoordinates();
-		var el = this.element.getCoordinates();
-		var diffx = el.left - this.element.getStyle('left').toInt();
-		var diffy = el.top - this.element.getStyle('top').toInt();
-		this.options.limit = {
-			'y': [-(diffy) + cont.top, cont.bottom - diffy - el.height],
-			'x': [-(diffx) + cont.left, cont.right - diffx - el.width]
-		};
-	}
-	Drag.Base.prototype.start.call(this, event);
-};
 
 /*
 Class: Windoo
@@ -83,7 +65,6 @@ Snap:
 Buttons:
 	menu - display window control menu button (see Buttons display values below). defaults to false;
 	close - display close window control button (see Buttons display values below). defaults to true;
-	shade - display shade window control button (see Buttons display values below). defaults to false;
 	minimize - display minimize window control button (see Buttons display values below). defaults to true;
 	maximize - display maximize window control button (see Buttons display values below). defaults to true;
 
@@ -106,7 +87,6 @@ Events:
 	onShow - optional, function to execute when window is shown;
 	onMaximize - optional, function to execute when window is maximized;
 	onMinimize - optional, function to execute when window is minimized;
-	onShade - optional, function to execute when window is shaded;
 	onRestore - optional, function to execute when window state is restored. argument contains the previous window state name;
 	onBeforeDrag - optional, function to execute when the user starts to drag window but before initial properties values are calculated;
 	onStartDrag - optional, function to execute when the user starts to drag the window;
@@ -166,7 +146,6 @@ var Windoo = new Class({
 		buttons: {
 			menu: false,
 			close: true,
-			shade: false,
 			minimize: true,
 			maximize: true
 		},
@@ -194,7 +173,6 @@ var Windoo = new Class({
 		onShow: Class.empty,
 		onMaximize: Class.empty,
 		onMinimize: Class.empty,
-		onShade: Class.empty,
 		onRestore: Class.empty,
 		onBeforeDrag: Class.empty,
 		onStartDrag: Class.empty,
@@ -320,7 +298,6 @@ var Windoo = new Class({
 		makeButton(buttons.maximize, 'maximize', 'Maximize', action('maximize', this));
 		makeButton(buttons.minimize, 'minimize', 'Minimize', action('minimize', this));
 		makeButton(buttons.minimize, 'restore', 'Restore', action('minimize', this));
-		makeButton(buttons.shade, 'shade', 'Shade', action('shade', this));
 		makeButton(buttons.menu, 'menu', 'Menu', action('menu', this));
 		return this;
 	},
@@ -409,9 +386,10 @@ var Windoo = new Class({
 
 	makeDraggable: function(){
 		var self = this, fx = this.fx.drag = [], inbody = this.options.container === $(document.body);
+		var xLimit = function(){ return 2 - self.el.offsetWidth; };
 		var opts = {
 			container: (this.options.restrict && !inbody ? this.options.container : null),
-			limit: (inbody ? {'x': [0], 'y': [0]} : {}),
+			limit: (inbody ? {'x': [xLimit], 'y': [0]} : {}),
 			snap: this.options.snap.move,
 			onBeforeStart: function(){
 				this.shade = window.shade({ styles:{
@@ -422,7 +400,6 @@ var Windoo = new Class({
 				if (self.ghost){
 					var ce = self.el.getSize().size;
 					this.element.setStyles({
-						'display': 'block',
 						'zIndex': self.el.getStyle('z-index').toInt()+10,
 						'left': self.el.getStyle('left'),
 						'top': self.el.getStyle('top'),
@@ -433,8 +410,11 @@ var Windoo = new Class({
 				self.fireEvent('onBeforeDrag', this).focus();
 			},
 			onStart: function(){
-				if (self.maximized) this.stop();
+				if (self.maximized && !self.minimized) this.stop();
 				else self.fireEvent('onStartDrag', this);
+			},
+			onSnap: function(){
+				if (self.ghost) this.element.setStyle('display', 'block');
 			},
 			onDrag: function(){
 				self.fix().fireEvent('onDrag', this);
@@ -729,6 +709,19 @@ var Windoo = new Class({
 	},
 
 	/*
+	Property: preventClose
+		Prevent closing the window. Should be called from inside the onClose event handler.
+
+	Arguments:
+		prevent - if defined, override the default value; defaults to true.
+	*/
+
+	preventClose: function(prevent){
+		this.$preventClose = $defined(prevent) ? prevent : true;
+		return this;
+	},
+
+	/*
 	Property: close
 		Close window and destroy if destroyOnClose option is set.
 
@@ -737,12 +730,15 @@ var Windoo = new Class({
 	*/
 
 	close: function(noeffect){
+		this.$preventClose = false;
+		this.fireEvent('onClose');
+		if (this.$preventClose) return this;
 		if (!this.visible) return this;
 		this.visible = false;
 		if (this.shadow) this.shadow.setStyle('display', 'none');
 		return this.effect('close', noeffect, function(){
 			this.el.setStyle('visibility', 'hidden');
-			this.fix(true).fireEvent('onClose');
+			this.fix(true);
 			if (this.options.destroyOnClose) this.destroy();
 		}.bind(this));
 	},
@@ -832,22 +828,6 @@ var Windoo = new Class({
 	restoreState: function(state){
 		state = state.outer;
 		return this.setSize(state.width, state.height).setPosition(state.left, state.top);
-	},
-
-	/*
-	Property: shade
-		TODO, toggle shaded window state.
-
-	Arguments:
-		noeffect - optional, if true, toggle window state immediately without effect
-
-	Returns:
-		The Windoo.
-	*/
-
-	shade: function(noeffect){
-		this.fireEvent('onShade');
-		return this.fix();
 	},
 
 	/*

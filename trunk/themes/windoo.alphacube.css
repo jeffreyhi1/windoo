@@ -99,17 +99,6 @@ div.windoo-alphacube a.windoo-restore:hover {
 div.windoo-alphacube a.windoo-restore-disabled, div.windoo-alphacube a.windoo-restore-disabled:hover {
 	background-position:-46px -57px;
 }
-div.windoo-alphacube a.windoo-shade {
-	top:0px;
-	right:84px;
-	background-position:-23px 0;
-}
-div.windoo-alphacube a.windoo-shade:hover {
-	background-position:-23px -38px;
-}
-div.windoo-alphacube a.windoo-shade-disabled, div.windoo-alphacube a.windoo-shade-disabled:hover {
-	background-position:-23px -57px;
-}
 div.windoo-alphacube a.windoo-menu {
 	top:0px;
 	left:5px;

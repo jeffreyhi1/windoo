@@ -118,19 +118,6 @@ div.windoo-aero a.windoo-restore-disabled, div.windoo-aero a.windoo-restore-disa
 	opacity:.3;
 	filter:Alpha(opacity=30);
 }
-div.windoo-aero a.windoo-shade {
-	top:0px;
-	right:79px;
-	background-position:-23px 0;
-}
-div.windoo-aero a.windoo-shade:hover {
-	background-position:-23px -19px;
-}
-div.windoo-aero a.windoo-shade-disabled, div.windoo-aero a.windoo-shade-disabled:hover {
-	background-position:-23px 0;
-	opacity:.3;
-	filter:Alpha(opacity=30);
-}
 
 div.windoo-aero a.windoo-menu {
 	display:none;
