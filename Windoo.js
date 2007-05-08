@@ -198,8 +198,7 @@ var Windoo = new Class({
 
 		['x', 'y'].each(function(z){
 			var lim = this.options.resizeLimit;
-			if ($type(lim[z][0]) == "number")
-				lim[z][0] = Math.max(lim[z][0], theme.resizeLimit[z][0])
+			if ($type(lim[z][0]) == "number") lim[z][0] = Math.max(lim[z][0], theme.resizeLimit[z][0])
 		}, this);
 
 		this.buildDOM()
@@ -243,13 +242,10 @@ var Windoo = new Class({
 
 		if (this.options['class']) this.el.addClass(this.options['class']);
 
-		var $row = function(prefix, contentClass){
-			return '<div class="' + prefix + '-left ' + _p + '-drag"><div class="' + prefix + '-right"><div class="' + contentClass + '"></div></div></div>';
-		};
-		var iefix = window.ie && this.options.type != 'iframe';
-		this.innerContent = '<div class="' + _p + '-frame">' + $row("top", "title") + $row("bot", "strut") + '</div>'
-			+ '<div class="' + _p + '-body">' + (iefix ? Windoo.ieTableCell : '') + '</div>';
-		this.el.setHTML(this.innerContent).inject(this.options.container);
+		var $row = function(prefix, contentClass){ return '<div class="' + prefix + '-left ' + _p + '-drag"><div class="' + prefix + '-right"><div class="' + contentClass + '"></div></div></div>'; };
+		var iefix = window.ie && this.options.type != 'iframe',
+			innerContent = '<div class="' + _p + '-frame">' + $row("top", "title") + $row("bot", "strut") + '</div><div class="' + _p + '-body">' + (iefix ? Windoo.ieTableCell : '') + '</div>';
+		this.el.setHTML(innerContent).inject(this.options.container);
 		if (window.ie) this.el.addClass(_p + '-' + theme.name + '-ie');
 
 		var frame = this.el.getFirst(), body = this.el.getLast();
@@ -298,7 +294,7 @@ var Windoo = new Class({
 		makeButton(buttons.maximize, 'maximize', 'Maximize', action('maximize', this));
 		makeButton(buttons.minimize, 'minimize', 'Minimize', action('minimize', this));
 		makeButton(buttons.minimize, 'restore', 'Restore', action('minimize', this));
-		makeButton(buttons.menu, 'menu', 'Menu', action('menu', this));
+		makeButton(buttons.menu, 'menu', 'Menu', action('openmenu', this));
 		return this;
 	},
 
