@@ -768,7 +768,7 @@ var Windoo = new Class({
 		if (this.minimized) return this.minimize();
 		var bound = function(value, limit){
 			if (!limit) return value;
-			if (value < limit[0]) return limit[0]
+			if (value < limit[0]) return limit[0];
 			if (limit.length > 1 && value > limit[1]) return limit[1];
 			return value;
 		};
