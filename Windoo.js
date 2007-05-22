@@ -30,6 +30,7 @@ Arguments:
 	options - The options object.
 
 Options:
+	id - optional, window Element id, defaults to unique value;
 	title - optional, window title;
 	width - required, int, window width in pixels (including window border);
 	height - required, int, window height in pixels (including window border);
@@ -147,6 +148,7 @@ var Windoo = new Class({
 			menu: false,
 			close: true,
 			minimize: true,
+			roll: false,
 			maximize: true
 		},
 		'class': '',
@@ -292,7 +294,7 @@ var Windoo = new Class({
 		};
 		makeButton(buttons.close, 'close', 'Close', action('close', this));
 		makeButton(buttons.maximize, 'maximize', 'Maximize', action('maximize', this));
-		makeButton(buttons.minimize, 'minimize', 'Minimize', action('minimize', this));
+		makeButton(buttons.minimize, 'minimize', 'Minimize', action(buttons.roll ? 'roll' : 'minimize', this));
 		makeButton(buttons.minimize, 'restore', 'Restore', action('minimize', this));
 		makeButton(buttons.menu, 'menu', 'Menu', action('openmenu', this));
 		return this;
@@ -463,6 +465,32 @@ var Windoo = new Class({
 
 	adopt: function(){
 		this.dom.content.empty().adopt.apply(this.dom.content, arguments);
+		return this;
+	},
+
+	/*
+	Property: wrap
+		Wrap the element into a window inheriting original element size.
+
+	Arguments:
+		el - an element reference or the id of the element to be injected inside window.
+		options - the Options object (see below).
+
+	Options:
+		position - optional, if true, move window at $(el) position.
+		ignorePadding - optional, if true all window theme paddings are set to 0, defaults to false.
+
+	Returns:
+		The Windoo.
+	*/
+
+	wrap: function(el, options){
+		el = $(el);
+		options = options || {};
+		var size = el.getSize().size, pos = el.getPosition(), pad = options.ignorePadding ? [0, 0, 0, 0] : this.theme.padding;
+		this.setSize(size.x + pad[1] + pad[3], size.y + pad[0] + pad[2]);
+		if (options.position) this.setPosition(pos.x - pad[3], pos.y - pad[0]);
+		this.dom.content.empty().adopt(el.remove());
 		return this;
 	},
 
@@ -766,6 +794,7 @@ var Windoo = new Class({
 
 	maximize: function(noeffect){
 		if (this.minimized) return this.minimize();
+		if (this.rolled) this.roll(true);
 		var bound = function(value, limit){
 			if (!limit) return value;
 			if (value < limit[0]) return limit[0];
@@ -812,10 +841,10 @@ var Windoo = new Class({
 			var s = container.getSize(), pad = this.theme.padding, height = pad[0] + pad[2];
 			this.setSize('auto', height).setPosition(s.scroll.x + 10, s.scroll.y + s.size.y - height - 10);
 			this.el.addClass(klass);
-			this.fireEvent('onRestore', 'minimize');
+			this.fireEvent('onMinimize');
 		} else {
 			this.el.removeClass(klass);
-			this.restoreState(this.$restoreMini).fireEvent('onMinimize');
+			this.restoreState(this.$restoreMini).fireEvent('onRestore', 'minimize');
 		}
 		return this.fix();
 	},
@@ -823,6 +852,33 @@ var Windoo = new Class({
 	restoreState: function(state){
 		state = state.outer;
 		return this.setSize(state.width, state.height).setPosition(state.left, state.top);
+	},
+
+	/*
+	Property: roll
+
+	Arguments:
+		noeffect - optional, if true, toggle window state immediately without effect
+
+	Returns:
+		The Windoo.
+	*/
+
+	roll: function(noeffect){
+		var klass = this.classPrefix('rolled');
+		this.rolled = !this.rolled;
+		if (this.rolled){
+			this.$restoreRoll = this.getState().outer;
+			var pad = this.theme.padding;
+			this.setSize(this.$restoreRoll.width, pad[0] + pad[2]);
+			this.el.addClass(klass);
+			this.fireEvent('onRoll');
+		} else {
+			this.el.removeClass(klass);
+			var state = this.$restoreRoll;
+			this.setSize(state.width, state.height).fireEvent('onRestore', 'roll');
+		}
+		return this.fix();
 	},
 
 	/*
