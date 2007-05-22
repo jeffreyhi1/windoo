@@ -13,6 +13,13 @@ TODO:
 	- automatically convert <img> into resizable <div> container
 */
 
+window.extend({
+	getScrollWidth: function(){
+		if (this.webkit) return document.body.scrollWidth;
+		return document.documentElement.scrollWidth;
+	}
+});
+
 /*
 Property: Window.shade
 	Create a shade element over all page area with the given properties.
@@ -347,6 +354,20 @@ Drag.Resize = new Class({
 });
 Drag.Resize.implement(new Events, new Options);
 
+
+Element.$overlay = function(hide){
+	if (!this.fixOverlayElement) this.fixOverlayElement = new Element('iframe', {
+		'properties': {'frameborder': '0', 'scrolling': 'no', 'src': 'javascript:false;'},
+		'styles': {'position': 'absolute', 'border': 'none', 'filter': 'progid:DXImageTransform.Microsoft.Alpha(opacity=0)'}}).injectAfter(this);
+	if (hide) return this.fixOverlayElement.setStyle('display', 'none');
+	var z = this.getStyle('z-index').toInt() || 0;
+	if (z < 1) this.setStyle('z-index', '' + (z = 2) );
+	var pos = this.getCoordinates();
+	return this.fixOverlayElement.setStyles({'display' : '', 'z-index': '' + (z - 1),
+		'left': pos.left + 'px', 'top': pos.top + 'px',
+		'width': pos.width + 'px', 'height': pos.height + 'px'});
+};
+
 /*
 Class: Element
 	Custom class to allow all of its methods to be used with any DOM element via the dollar function <$>.
@@ -363,19 +384,7 @@ Element.extend({
 		hide - optional, hide overlay element if true.
 	*/
 
-	fixOverlay: function(hide){
-		if (!window.ie6) return false;
-		if (!this.fixOverlayElement) this.fixOverlayElement = new Element('iframe', {
-			'properties': {'frameborder': '0', 'scrolling': 'no', 'src': 'javascript:false;'},
-			'styles': {'position': 'absolute', 'border': 'none', 'filter': 'progid:DXImageTransform.Microsoft.Alpha(opacity=0)'}}).injectAfter(this);
-		if (hide) return this.fixOverlayElement.setStyle('display', 'none');
-		var z = this.getStyle('z-index').toInt() || 0;
-		if (z < 1) this.setStyle('z-index', '' + (z = 2) );
-		var pos = this.getCoordinates();
-		return this.fixOverlayElement.setStyles({'display' : '', 'z-index': '' + (z - 1),
-			'left': pos.left + 'px', 'top': pos.top + 'px',
-			'width': pos.width + 'px', 'height': pos.height + 'px'});
-	},
+	fixOverlay: window.ie6 ? Element.$overlay : function(){ return false; },
 
 	/*
 	Property: remove
