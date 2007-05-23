@@ -485,12 +485,12 @@ var Windoo = new Class({
 	*/
 
 	wrap: function(el, options){
-		el = $(el).setStyles({'margin': '0', 'position': 'static'});
+		el = $(el);
 		options = options || {};
 		var size = el.getSize().size, pos = el.getPosition(), pad = options.ignorePadding ? [0, 0, 0, 0] : this.theme.padding;
-		this.setSize(size.x + pad[1] + pad[3], size.y + pad[0] + pad[2]);
+		this.setSize(size.x + pad[1] + pad[3], size.y + pad[2]);
 		if (options.position) this.setPosition(pos.x - pad[3], pos.y - pad[0]);
-		this.dom.content.empty().adopt(el.remove());
+		this.dom.content.empty().adopt(el.remove().setStyles({'margin': '0', 'position': 'static'}));
 		return this;
 	},
 
@@ -956,7 +956,7 @@ var Windoo = new Class({
 
 });
 Windoo.implement(new Events, new Options);
-Windoo.ieTableCell = '<table style="position:absolute;top:0;left:0;border:none;border-collapse:collapse;padding:0;cell-padding:0;"><tr><td style="border:none;overflow:auto;position:relative;padding:0;"></td></tr></table>';
+Windoo.ieTableCell = '<table style="position:absolute;top:0;left:0;border:none;border-collapse:collapse;padding:0;"><tr><td style="border:none;overflow:auto;position:relative;padding:0;"></td></tr></table>';
 
 /*
 Class: Windoo.Ajax
