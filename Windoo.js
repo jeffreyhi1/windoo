@@ -347,8 +347,12 @@ var Windoo = new Class({
 				self.fireEvent('onBeforeResize', this).focus();
 			},
 			onStart: function(fx){
-				if (self.maximized) fx.stop();
-				else self.fireEvent('onStartResize', this);
+				if (self.maximized){
+					fx.stop();
+				} else {
+					if (!this.ghost && window.gecko) Element.$overlay.call(fx.shade.overlay);
+					self.fireEvent('onStartResize', this);
+				}
 			},
 			onResize: function(){
 				self.fireEvent('onResize', this);
@@ -403,6 +407,8 @@ var Windoo = new Class({
 						'width': ce.x,
 						'height': ce.y
 					});
+				} else {
+					Element.$overlay.call(this.shade.overlay);
 				}
 				self.fireEvent('onBeforeDrag', this).focus();
 			},
