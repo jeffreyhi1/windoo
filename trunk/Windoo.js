@@ -234,8 +234,7 @@ var Windoo = new Class({
 				'overflow': 'auto',
 				'visibility': 'hidden',
 				'top': this.options.top,
-				'left': this.options.left,
-				'zIndex': this.options.zIndex
+				'left': this.options.left
 			},
 			'events': {
 				'mousedown': this.focus.bind(this)
@@ -390,15 +389,15 @@ var Windoo = new Class({
 			limit: (inbody ? {'x': [xLimit], 'y': [0]} : {}),
 			snap: this.options.snap.move,
 			onBeforeStart: function(){
-				this.shade = window.shade({ styles:{
+				this.shade = new Fx.Overlay(window, {'styles': {
 					'cursor': this.options.handle.getStyle('cursor'),
 					'background': self.theme.shadeBackground,
-					'zIndex': '1000'
-				}});
+					'zIndex': self.zIndex + 3
+				}}).show();
 				if (self.ghost){
 					var ce = self.el.getSize().size;
 					this.element.setStyles({
-						'zIndex': self.el.getStyle('z-index').toInt()+10,
+						'zIndex': self.zIndex + 3,
 						'left': self.el.getStyle('left'),
 						'top': self.el.getStyle('top'),
 						'width': ce.x,
@@ -418,7 +417,7 @@ var Windoo = new Class({
 				self.fix().fireEvent('onDrag', this);
 			},
 			onComplete: function(){
-				this.shade.remove();
+				this.shade.destroy();
 				if (self.ghost){
 					for (var z in this.options.modifiers){
 						var style = this.options.modifiers[z];
@@ -640,7 +639,7 @@ var Windoo = new Class({
 				this.shadow.setStyle('display', 'none');
 			} else if (this.visible){
 				var pos = this.el.getCoordinates(), pad = this.theme.shadowDisplace;
-				this.shadow.setStyles({'display': '', 'zIndex': (this.zIndex - 1),
+				this.shadow.setStyles({'display': '', 'zIndex': this.zIndex - 1,
 					'left': this.el.offsetLeft + pad.left, 'top': this.el.offsetTop + pad.top,
 					'width': pos.width + pad.width, 'height': pos.height + pad.height});
 				if (this.dom.shm) this.dom.shm.setStyle('height', pos.height - pad.delta);
