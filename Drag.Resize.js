@@ -1,7 +1,7 @@
 /*
 Script: Drag.Resize.js
 	Mootools Drag.Resize: 8-way resizable element extension.
-	Contains <Drag.Resize>, <Element::makeResizable>.
+	Contains <Fx.Overlay>, <Drag.Resize>, <Element::makeResizable>.
 
 License:
 	MIT-style license.
@@ -13,33 +13,95 @@ TODO:
 	- automatically convert <img> into resizable <div> container
 */
 
-window.extend({
-	getScrollWidth: function(){
-		if (this.webkit) return document.body.scrollWidth;
-		return document.documentElement.scrollWidth;
-	}
-});
-
 /*
-Property: Window.shade
-	Create a shade element over all page area with the given properties.
-
-Arguments:
-	options - optional, options passed to the Element constructor.
+Class: Fx.Overlay
+	Overlay class to cover target element content.
 */
 
-window.shade = function(options){
-	var size = this.getSize().scrollSize;
-	var shade = new Element('div', $merge({ styles:{
-		'position': 'absolute',
-		'top': 0,
-		'left': 0,
-		'width': size.x,
-		'height': size.y
-	}}, options)).inject(document.body);
-	shade.fixOverlay();
-	return shade;
-};
+Fx.Overlay = new Class({
+
+	options: {
+		'styles': {
+			'position': 'absolute',
+			'top': 0,
+			'left': 0
+		}
+	},
+
+	/*
+	Property: initialize
+		Creates a new Fx.Overlay object.
+
+	Arguments:
+		element - element; container element or window object.
+		props - object; the properties to set for overlay element. see Element properties.
+	*/
+
+	initialize: function(element, props){
+		this.element = $(element);
+		this.setOptions(props);
+		if ([window, $(document.body)].contains(this.element)){
+			this.padding =  Fx.Overlay.windowPadding;
+			this.container = $(document.body);
+			this.element = window;
+		} else {
+			this.padding = {x: 0, y: 0};
+			this.container = this.element;
+		}
+		this.overlay = new Element('div', {'styles': {'display': 'none'}}).inject(this.container);
+		this.update();
+	},
+
+	/*
+	Property: show
+		Make overlay element visible.
+	*/
+
+	show: function(){
+		this.overlay.setStyle('display', 'block');
+		return this;
+	},
+
+	/*
+	Property: update
+		Recalculate conteiner element scroll size and update overlay element properties.
+
+	Arguments:
+		props - optional, see Element properties.
+	*/
+
+	update: function(props){
+		this.overlay.set($merge(this.options, {'styles': {
+			width: this.element.getScrollWidth() - this.padding.x,
+			height: this.element.getScrollHeight() - this.padding.y
+		}}, props));
+		return this;
+	},
+
+	/*
+	Property: hide
+		Make overlay element invisible.
+	*/
+
+	hide: function(){
+		this.overlay.setStyle('display', 'hidden');
+		return this;
+	},
+
+	/*
+	Property: destroy
+		Destroy overlay element.
+	*/
+
+	destroy: function(){
+		this.overlay.remove(true);
+		return this;
+	}
+
+});
+Fx.Overlay.implement(new Options);
+Fx.Overlay.windowPadding = (window.ie6) ? {x: 21, y: 4} : {x: 0, y: 0};
+
 
 Drag.Multi.$direction = {
 	east: { 'x':1 },
@@ -189,11 +251,11 @@ Drag.Resize = new Class({
 			onBeforeStart: function(){
 				self.fireEvent('onBeforeStart', this);
 				self.started = true;
-				this.shade = window.shade({ styles:{
+				this.shade = new Fx.Overlay(window, {'styles': {
 					'cursor': this.options.handle.getStyle('cursor'),
 					'background': self.options.shadeBackground,
 					'z-index': self.options.zIndex + 1
-				}});
+				}}).show();
 				if (self.ghost){
 					var ce = self.el.getCoordinates();
 					self.ghost.setStyles({
@@ -224,8 +286,7 @@ Drag.Resize = new Class({
 			onComplete: function(){
 				self.started = false;
 				if (self.options.hoverClass) self.el.removeClass(self.options.hoverClass);
-				this.shade.remove();
-				this.shade = null;
+				this.shade.destroy();
 				if (self.ghost){
 					for (var z in this.modifiers){
 						this.modifiers[z].each(function(mod){
@@ -395,7 +456,10 @@ Element.extend({
 	*/
 
 	remove: function(trash){
-		if (this.fixOverlayElement) this.fixOverlayElement.remove(trash);
+		if (this.fixOverlayElement){
+			this.fixOverlayElement.remove();
+			if (trash){ Garbage.trash([this.fixOverlayElement]); }
+		}
 		this.parentNode.removeChild(this);
 		if (trash){ Garbage.trash([this.empty()]); return false; }
 		return this;

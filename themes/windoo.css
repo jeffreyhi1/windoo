@@ -38,7 +38,7 @@ div.windoo a.windoo-button {
 }
 
 /* Minimized and maximazed states */
-div.windoo-maximized .windoo-sizer, div.windoo-minimized .windoo-sizer, div.windoo-shaded .windoo-sizer, div.windoo-minimized a.windoo-button {
+div.windoo-maximized .windoo-sizer, div.windoo-minimized .windoo-sizer, div.windoo-rolled .windoo-sizer, div.windoo-minimized a.windoo-button {
 	display:none !important;
 }
 div.windoo-minimized a.windoo-restore {
@@ -117,8 +117,9 @@ div.windoo-ghost {
 	border:dotted #0d0 2px;
 	position:absolute;
 	-moz-user-select: none;
-	-moz-box-sizing: border-box;
-	box-sizing: border-box;
+	-moz-box-sizing:border-box;
+	box-sizing:border-box;
+	background:transparent url('windoo/s.gif');
 }
 
 /* Windoo simple shadow */
@@ -132,5 +133,3 @@ div.windoo-shadow-simple {
 	-moz-border-radius:4px;
 	border-radius:4px;
 }
-
-
