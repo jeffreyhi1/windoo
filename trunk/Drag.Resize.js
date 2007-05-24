@@ -37,7 +37,7 @@ Fx.Overlay = new Class({
 		props - object; the properties to set for overlay element. see Element properties.
 	*/
 
-	initialize: function(element, props){
+	initialize: function(element, props, tag){
 		this.element = $(element);
 		this.setOptions(props);
 		if ([window, $(document.body)].contains(this.element)){
@@ -48,7 +48,7 @@ Fx.Overlay = new Class({
 			this.padding = {x: 0, y: 0};
 			this.container = this.element;
 		}
-		this.overlay = new Element('div', {'styles': {'display': 'none'}}).inject(this.container);
+		this.overlay = new Element($pick(tag, 'div'), {'styles': {'display': 'none'}}).inject(this.container);
 		this.update();
 	},
 
@@ -418,7 +418,7 @@ Drag.Resize.implement(new Events, new Options);
 
 Element.$overlay = function(hide){
 	if (!this.fixOverlayElement) this.fixOverlayElement = new Element('iframe', {
-		'properties': {'frameborder': '0', 'scrolling': 'no', 'src': 'javascript:false;'},
+		'properties': {'frameborder': '0', 'scrolling': 'no', 'src': 'javascript:void(0);'},
 		'styles': {'position': 'absolute', 'border': 'none', 'filter': 'progid:DXImageTransform.Microsoft.Alpha(opacity=0)'}}).injectAfter(this);
 	if (hide) return this.fixOverlayElement.setStyle('display', 'none');
 	var z = this.getStyle('z-index').toInt() || 0;
