@@ -13,7 +13,7 @@ Note:
 	Windoo: windows for the cow people (c) ibolmo
 
 TODO:
-	- modals / confirm / alert
+	- confirm / alert
 	- refactor action effects (make effects customizable)
 	- manage minimized windows with window manager
 	- window popup menu
@@ -49,7 +49,7 @@ Options:
 	snap - object, see Snap below;
 	theme - optional, defines window theme (see: <Windoo.Themes>). defaults to 'windoo';
 	shadow - optional, if false turns off window shadow event if such is defined in theme. defaults to true;
-	modal - boolean, TODO, defines if the window is modal. defaults to false;
+	modal - boolean, defines if the window is modal. defaults to false;
 	buttons - object, see Buttons below;
 	class - opional, additional custom window element class name;
 	wm - optional, defines window manager (see: <Windoo.Manager>) to attach window to;
@@ -200,7 +200,7 @@ var Windoo = new Class({
 
 		['x', 'y'].each(function(z){
 			var lim = this.options.resizeLimit;
-			if ($type(lim[z][0]) == "number") lim[z][0] = Math.max(lim[z][0], theme.resizeLimit[z][0])
+			if ($type(lim[z][0]) == 'number') lim[z][0] = Math.max(lim[z][0], theme.resizeLimit[z][0])
 		}, this);
 
 		this.buildDOM()
@@ -286,7 +286,7 @@ var Windoo = new Class({
 		var makeButton = function(opt, name, title, action){
 			self.bound[name] = action;
 			if (opt){
-				var klass = _p + '-button ' + _p + '-' + name + ( opt == 'disabled' ? ' ' + _p + '-' + name + '-disabled' : "" );
+				var klass = _p + '-button ' + _p + '-' + name + ( opt == 'disabled' ? ' ' + _p + '-' + name + '-disabled' : '' );
 				self.dom[name] = new Element('a', {'class': klass, 'href': '#', 'title': title}).setHTML('x').inject(self.el);
 				self.dom[name].addEvent('click', opt == 'disabled' ? self.bound.noaction : action);
 			}
@@ -309,6 +309,7 @@ var Windoo = new Class({
 
 	buildShadow: function(){
 		var theme = this.theme;
+		if (this.options.modal) this.modalOverlay = new Fx.Overlay(this.el.getParent(), {'class': this.classPrefix('modal-overlay')});
 		if (!theme.shadow || !this.options.shadow) return this;
 		this.shadow = new Element('div', {
 			'styles': {'display': 'none'},
@@ -550,7 +551,7 @@ var Windoo = new Class({
 	*/
 
 	setTitle: function(title){
-		this.dom.title.setHTML(title || "&nbsp;");
+		this.dom.title.setHTML(title || '&nbsp;');
 		return this;
 	},
 
@@ -592,6 +593,7 @@ var Windoo = new Class({
 		if (this.shadow) this.shadow.setStyle('display', 'none');
 		return this.effect('hide', noeffect, function(){
 			this.el.setStyle('visibility', 'hidden');
+			if (this.modalOverlay) this.modalOverlay.hide();
 			this.fix(true).fireEvent('onHide');
 		}.bind(this));
 	},
@@ -612,6 +614,7 @@ var Windoo = new Class({
 		this.visible = true;
 		this.fireEvent('onShow').bringTop();
 		this.el.fixOverlay();
+		if (this.modalOverlay) this.modalOverlay.show();
 		return this.effect('show', noeffect, function(){
 			this.el.setStyle('visibility', 'visible');
 			this.fix();
@@ -777,8 +780,9 @@ var Windoo = new Class({
 	destroy: function(){
 		this.fireEvent('onDestroy');
 		this.wm.unregister(this);
-		if (this.shadow) this.shadow.empty().remove();
-		this.el.empty().remove();
+		if (this.modalOverlay) this.modalOverlay.destroy();
+		if (this.shadow) this.shadow.remove(true);
+		this.el.remove(true);
 		for (var z in this) this[z] = null;
 	},
 
@@ -916,6 +920,7 @@ var Windoo = new Class({
 		if (this.el.fixOverlayElement) this.el.fixOverlayElement.setStyle('zIndex', z - 1);
 		if (this.shadow) this.shadow.setStyle('zIndex', z - 1);
 		if (this.fx.resize) this.fx.resize.options.zIndex = z + 1;
+		if (this.modalOverlay) this.modalOverlay.overlay.setStyle('zIndex', z - 2);
 		return this;
 	},
 
