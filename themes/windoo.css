@@ -133,3 +133,10 @@ div.windoo-shadow-simple {
 	-moz-border-radius:4px;
 	border-radius:4px;
 }
+
+/* Modal window shadow overlay */
+div.windoo-modal-overlay {
+	background:#000;
+	opacity:.6;
+	filter:Alpha(opacity=60);
+}

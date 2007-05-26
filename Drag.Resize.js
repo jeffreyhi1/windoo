@@ -308,8 +308,8 @@ Drag.Resize = new Class({
 						ec = mod.element.getCoordinates();
 					var value = sign * (cc[props[0]] - ec[props[1]]);
 					switch ($type(lim)){
-						case "number": return Math.min(value, lim);
-						case "function": return Math.min(value, lim(mod));
+						case 'number': return Math.min(value, lim);
+						case 'function': return Math.min(value, lim(mod));
 						default: return value;
 					}
 				};
@@ -326,14 +326,14 @@ Drag.Resize = new Class({
 			var generator = function(lim, rlim, op, rdef){
 				if (!$type(rlim)) rlim = rdef;
 				var lim_type = $type(lim);
-				if (rlim === null) return lim_type == "function" ? lim : function(){ return lim; };
+				if (rlim === null) return lim_type == 'function' ? lim : function(){ return lim; };
 				return function(mod){
 					var cc = container.getCoordinates(),
 						ec = mod.element.getCoordinates();
 					var value = ec[props[1]] - cc[props[0]] - rlim;
 					switch (lim_type){
-						case "number": return Math[op](value, lim);
-						case "function": return Math[op](value, lim(mod));
+						case 'number': return Math[op](value, lim);
+						case 'function': return Math[op](value, lim(mod));
 						default: return value;
 					}
 				};
@@ -419,7 +419,7 @@ Drag.Resize.implement(new Events, new Options);
 Element.$overlay = function(hide){
 	if (!this.fixOverlayElement) this.fixOverlayElement = new Element('iframe', {
 		'properties': {'frameborder': '0', 'scrolling': 'no', 'src': 'javascript:void(0);'},
-		'styles': {'position': 'absolute', 'border': 'none', 'filter': 'progid:DXImageTransform.Microsoft.Alpha(opacity=0)'}}).injectAfter(this);
+		'styles': {'position': 'absolute', 'border': 'none', 'filter': 'progid:DXImageTransform.Microsoft.Alpha(opacity=0)'}}).injectBefore(this);
 	if (hide) return this.fixOverlayElement.setStyle('display', 'none');
 	var z = this.getStyle('z-index').toInt() || 0;
 	if (z < 1) this.setStyle('z-index', '' + (z = 2) );
