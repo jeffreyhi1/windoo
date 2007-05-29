@@ -592,7 +592,7 @@ var Windoo = new Class({
 		this.visible = false;
 		if (this.shadow) this.shadow.setStyle('display', 'none');
 		return this.effect('hide', noeffect, function(){
-			this.el.setStyle('visibility', 'hidden');
+			this.el.setStyle('display', 'none');
 			if (this.modalOverlay) this.modalOverlay.hide();
 			this.fix(true).fireEvent('onHide');
 		}.bind(this));
@@ -613,7 +613,7 @@ var Windoo = new Class({
 		if (this.visible) return this;
 		this.visible = true;
 		this.fireEvent('onShow').bringTop();
-		this.el.fixOverlay();
+		this.el.setStyle('display', '').fixOverlay();
 		if (this.modalOverlay) this.modalOverlay.show();
 		return this.effect('show', noeffect, function(){
 			this.el.setStyle('visibility', 'visible');
@@ -766,7 +766,7 @@ var Windoo = new Class({
 		this.visible = false;
 		if (this.shadow) this.shadow.setStyle('display', 'none');
 		return this.effect('close', noeffect, function(){
-			this.el.setStyle('visibility', 'hidden');
+			this.el.setStyle('display', 'none');
 			this.fix(true);
 			if (this.options.destroyOnClose) this.destroy();
 		}.bind(this));
@@ -784,6 +784,7 @@ var Windoo = new Class({
 		if (this.shadow) this.shadow.remove(true);
 		this.el.remove(true);
 		for (var z in this) this[z] = null;
+		this.destroyed = true;
 	},
 
 	classPrefix: function(klass){
