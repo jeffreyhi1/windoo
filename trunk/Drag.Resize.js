@@ -239,6 +239,7 @@ Drag.Resize = new Class({
 				x: {step: function(s, c, d){ return d * c / R - s; }},
 				y: {step: function(s, c, d){ return d * c * R - s; }}
 			};
+			this.options.direction = $merge(this.options.direction);
 			['nw','ne','sw','se'].each(function(z){ delete this[z]; }, this.options.direction);
 		}
 		if (this.options.ghost){
