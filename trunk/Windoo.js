@@ -1,7 +1,7 @@
 /*
 Script: Windoo.js
 	Mootools draggable and resizable Window extension.
-	Contains <Windoo>, <Windoo.Ajax>, <Windoo.Manager>, <Windoo.Themes>.
+	Contains <Windoo>, <Windoo.Themes>.
 
 License:
 	MIT-style license.
@@ -13,7 +13,6 @@ Note:
 	Windoo: windows for the cow people (c) ibolmo
 
 TODO:
-	- confirm / alert
 	- refactor action effects (make effects customizable)
 	- manage minimized windows with window manager
 	- window popup menu
@@ -84,7 +83,8 @@ Effects:
 Events:
 	onFocus - optional, function to execute when window obtains focus;
 	onBlur - optional, function to execute when window looses focus;
-	onClose - optional, function to execute when window is destroyed;
+	onBeforeClose - optional, function to execute before window is closed;
+	onClose - optional, function to execute when window is closed;
 	onDestroy - optional, function to execute when window is destroyed;
 	onHide - optional, function to execute when window is hidden;
 	onShow - optional, function to execute when window is shown;
@@ -628,12 +628,12 @@ var Windoo = new Class({
 	show: function(noeffect){
 		if (this.visible) return this;
 		this.visible = true;
-		this.fireEvent('onShow').bringTop();
+		this.bringTop();
 		this.el.setStyle('display', '').fixOverlay();
 		if (this.modalOverlay) this.modalOverlay.show();
 		return this.effect('show', noeffect, function(){
 			this.el.setStyle('visibility', 'visible');
-			this.fix();
+			this.fix().fireEvent('onShow');
 		}.bind(this));
 	},
 
@@ -775,14 +775,14 @@ var Windoo = new Class({
 
 	close: function(noeffect){
 		this.$preventClose = false;
-		this.fireEvent('onClose');
+		this.fireEvent('onBeforeClose');
 		if (this.$preventClose) return this;
 		if (!this.visible) return this;
 		this.visible = false;
 		if (this.shadow) this.shadow.setStyle('display', 'none');
 		return this.effect('close', noeffect, function(){
 			this.el.setStyle('display', 'none');
-			this.fix(true);
+			this.fix(true).fireEvent('onClose');
 			if (this.options.destroyOnClose) this.destroy();
 		}.bind(this));
 	},
@@ -978,194 +978,10 @@ var Windoo = new Class({
 
 	bringTop: function(){
 		return this.setZIndex(this.wm.maxZIndex());
-	},
-
-	addPanel: function(element, position){
-		position = $pick(position, 'bottom');
-		var dim, ndim,
-			size = this.el.getSize().size,
-			styles = {'position': 'absolute'},
-			panel = {'element': $(element), 'position': position, 'fx': []};
-		switch (position){
-			case 'top':
-			case 'bottom': dim = 'x'; ndim = 'y'; break;
-			case 'left':
-			case 'right': dim = 'y'; ndim = 'x'; break;
-			default: return this;
-		}
-		var options = Windoo.panelOptions[dim];
-		styles[position] = this.padding[position];
-		styles[options.deltaP] = this.padding[options.deltaP];
-		element = panel.element.setStyles(styles).inject(this.el);
-		panel.padding = element.getSize().size[ndim];
-		this.padding[position] += panel.padding;
-		if (!this.options.ghost.resize){
-			this.fx.resize.add(function(dir, binds){
-				if (binds.resize[dim]){
-					var fx = this.fx[dir], mod = {};
-					mod[dim] = $merge(binds.resize[dim]);
-					mod[dim].limit = null;
-					panel.fx.push({
-						'fx': fx,
-						'bind': fx.add(panel.element, mod, binds.resize)
-					});
-				}
-			});
-		}
-		this.addEvent('onResizeComplete', function(){
-			panel.element.setStyle(options.style, this.el.getSize().size[dim] - this.padding[options.deltaM] - this.padding[options.deltaP] - 1);
-		});
-		this.panels.push(panel);
-		return this.setSize(size.x, size.y);
-	},
-
-	removePanel: function(element){
-		var panel, size;
-		element = $(element);
-		for (var i = 0, len = this.panels.length; i < len; i++){
-			panel = this.panels[i];
-			if (panel.element === element){
-				this.padding[panel.position] -= panel.padding;
-				panel.element.remove();
-				panel.fx.each(function(pfx){ pfx.fx.detach(pfx.bind); });
-				this.panels.splice(i, 1);
-				size = this.el.getSize().size,
-				this.setSize(size.x, size.y)
-				break;
-			}
-		}
-		return this;
 	}
-
 });
 Windoo.implement(new Events, new Options);
-Windoo.panelOptions = {
-	'x': {'style': 'width', 'deltaP': 'left', 'deltaM': 'right'},
-	'y': {'style': 'height', 'deltaP': 'top', 'deltaM': 'bottom'}
-};
 Windoo.ieTableCell = '<table style="position:absolute;top:0;left:0;border:none;border-collapse:collapse;padding:0;"><tr><td style="border:none;overflow:auto;position:relative;padding:0;"></td></tr></table>';
-
-/*
-Class: Windoo.Ajax
-	Extended <Ajax> class to update window content.
-
-Options:
-	window - Windoo object to insert the response text of the XHR into, upon completion of the request.
-*/
-
-Windoo.Ajax = Ajax.extend({
-	onComplete: function(){
-		if (this.options.window) this.options.window.setHTML(this.response.text);
-		this.parent();
-	}
-});
-
-/*
-Class: Windoo.Manager
-	Window manager class.
-
-Options:
-	zIndex - Starting window z-index value;
-	onRegister - optional, function to execute when window is registered;
-	onUnregister - optional, function to execute when window is unregistered;
-	onFocus - optional, function to execute when window is focused;
-	onBlur - optional, function to execute when window loses focus;
-*/
-
-Windoo.Manager = new Class({
-	focused: false,
-	options: {
-		zIndex: 100,
-		onRegister: Class.empty,
-		onUnregister: Class.empty,
-		onFocus: Class.empty,
-		onBlur: Class.empty
-	},
-
-	initialize: function(options){
-		this.hash = [];
-		this.setOptions(options);
-	},
-
-	/*
-	Property: maxZIndex
-		Returns maximal z-index value of all windows.
-	*/
-
-	maxZIndex: function(){
-		var windows = this.hash;
-		if (!windows.length) return this.options.zIndex;
-		var zindex = [];
-		windows.each(function(item){ this.push(item.zIndex);}, zindex);
-		zindex.sort(function(a, b){ return a - b; });
-		return zindex.getLast() + 3;
-	},
-
-	/*
-	Property: register
-		internal, register new window in the manager.
-	*/
-
-	register: function(win){
-		win.setZIndex(this.maxZIndex());
-		this.hash.push(win);
-		return this.fireEvent('onRegister', win);
-	},
-
-	/*
-	Property: unregister
-		internal, unregister window.
-	*/
-
-	unregister: function(win){
-		this.hash.remove(win);
-		if (this.focused === win) this.focused = false;
-		return this.fireEvent('onUnregister', win);
-	},
-
-	/*
-	Property: focus
-		internal, set focus to the window.
-
-	Arguments:
-		win - window to set as focused
-	*/
-
-	focus: function(win){
-		var idx = this.hash.indexOf(win);
-		if (idx === this.focused) return this;
-		if (this.focused) this.focused.blur();
-		this.focused = win;
-		win.bringTop(this.maxZIndex());
-		return this.fireEvent('onFocus', win);
-	},
-
-	/*
-	Property: blur
-		internal, remove focus from the window if focused. Returns true if focus is removed.
-
-	Arguments:
-		win - window to remove focus from
-	*/
-
-	blur: function(win){
-		if (this.focused === win){
-			this.focused = false;
-			this.fireEvent('onBlur', win);
-			return true;
-		}
-		return false;
-	}
-
-});
-Windoo.Manager.implement(new Events, new Options);
-
-/*
-Property: Windoo.$wm
-	Default window manager object.
-*/
-
-Windoo.$wm = new Windoo.Manager();
 
 /*
 Class: Windoo.Themes
@@ -1180,25 +996,6 @@ Windoo.Themes = {
 	*/
 
 	cssFirefoxMac: '.windoo-blur * {overflow: hidden !important;}',
-
-	/*
-	Property: aero
-		Modified 'aero' theme from YUI-Ext library <http://extjs.com/>
-	*/
-
-	aero: {
-		'name': 'aero',
-		'padding': {'top': 28, 'right': 10, 'bottom': 15, 'left': 10},
-		'resizeLimit': {'x': [175], 'y': [58]},
-		'className': 'windoo windoo-aero',
-		'sizerClass': 'sizer',
-		'classPrefix': 'windoo',
-		'ghostClass': 'windoo-ghost windoo-aero-ghost windoo-hover',
-		'hoverClass': 'windoo-hover',
-		'shadow': 'simple window-aero-shadow-simple',
-		'shadeBackground': 'transparent url(windoo/s.gif)',
-		'shadowDisplace': {'left': 3, 'top': 3, 'width': 0, 'height': 0}
-	},
 
 	/*
 	Property: alphacube
