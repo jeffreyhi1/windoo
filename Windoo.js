@@ -41,6 +41,7 @@ Options:
 	url - optional, source URL for 'iframe' and 'ajax' window types to load at start;
 	resizable - boolean, defines if the window is resizable. defaults to true;
 	draggable - boolean, defines if the window is draggable. defaults to true;
+	positionStyle - window element position style value ('absolute', 'fixed'). defaults to 'absolute';
 	resizeLimit - optional, window resize limits (see: <Drag.Resize>::limit option);
 	destroyOnClose - boolean, if true destroy window instance when close button clicked, otherwise hide window. default to true;
 	container - optional, window container element, should have position relative or absolute. defaults to document.body;
@@ -67,6 +68,7 @@ Buttons:
 	menu - display window control menu button (see Buttons display values below). defaults to false;
 	close - display close window control button (see Buttons display values below). defaults to true;
 	minimize - display minimize window control button (see Buttons display values below). defaults to true;
+	roll - if true minimize button roll window into header. defaults to false;
 	maximize - display maximize window control button (see Buttons display values below). defaults to true;
 
 Buttons display values:
@@ -135,6 +137,7 @@ var Windoo = new Class({
 		left: 0,
 		resizable: true,
 		draggable: true,
+		positionStyle: 'absolute',
 		resizeLimit: {'x': [0], 'y': [0]},
 		ghost: {'resize': false, 'move': false},
 		snap: {'resize': 6, 'move': 6},
@@ -231,6 +234,7 @@ var Windoo = new Class({
 			'id': this.options.id,
 			'class': theme.className,
 			'styles': {
+				'position': this.options.positionStyle,
 				'overflow': 'auto',
 				'visibility': 'hidden',
 				'top': this.options.top,
@@ -312,7 +316,10 @@ var Windoo = new Class({
 		if (this.options.modal) this.modalOverlay = new Fx.Overlay(this.el.getParent(), {'class': this.classPrefix('modal-overlay')});
 		if (!theme.shadow || !this.options.shadow) return this;
 		this.shadow = new Element('div', {
-			'styles': {'display': 'none'},
+			'styles': {
+				'position': this.options.positionStyle,
+				'display': 'none'
+			},
 			'class': theme.classPrefix + '-shadow-' + theme.shadow
 		}).injectAfter(this.el);
 		if (theme.shadow == 'image'){
@@ -366,17 +373,18 @@ var Windoo = new Class({
 				self.fix().fireEvent('onResizeComplete', this);
 			},
 			onBuild: function(dir, binds){
-				if (this.ghost) return;
-				var fx = this.fx[dir];
-				if (binds.resize.y) ['strut', 'body', 'shm'].each(function(name){
-					if (this[name]) fx.add(this[name], {'y': {direction: binds.resize.y.direction, style: 'height'}}, binds.resize);
-				}, self.dom);
-				[self.shadow, self.el.fixOverlayElement].each(function(el){
-					if (el){
-						fx.add(el, binds.resize, binds.resize);
-						if (binds.move) fx.add(el, binds.move, binds.move);
-					}
-				}, self);
+				if (!this.ghost){
+					var fx = this.fx[dir];
+					if (binds.resize.y) ['strut', 'body', 'shm'].each(function(name){
+						if (this[name]) fx.add(this[name], {'y': {direction: binds.resize.y.direction, style: 'height'}}, binds.resize);
+					}, self.dom);
+					[self.shadow, self.el.fixOverlayElement].each(function(el){
+						if (el){
+							fx.add(el, binds.resize, binds.resize);
+							if (binds.move) fx.add(el, binds.move, binds.move);
+						}
+					}, self);
+				}
 			}
 		});
 	},
@@ -408,8 +416,8 @@ var Windoo = new Class({
 						'width': ce.x,
 						'height': ce.y
 					});
-				} else {
-					Element.$overlay.call(this.shade.overlay);
+				} else if (window.gecko){
+					Element.$overlay.call(this.shade.overlay, false, 2);
 				}
 				self.fireEvent('onBeforeDrag', this).focus();
 			},
@@ -491,12 +499,14 @@ var Windoo = new Class({
 	*/
 
 	wrap: function(el, options){
+		var styles = {'margin': '0', 'position': 'static'};
 		el = $(el);
 		options = options || {};
 		var size = el.getSize().size, pos = el.getPosition(), pad = options.ignorePadding ? [0, 0, 0, 0] : this.theme.padding;
-		this.setSize(size.x + pad[1] + pad[3], size.y + pad[2]);
+		this.setSize(size.x + pad[1] + pad[3], size.y + pad[0] + pad[2]);
+		if (options.resetWidth) styles.width = 'auto';
 		if (options.position) this.setPosition(pos.x - pad[3], pos.y - pad[0]);
-		this.dom.content.empty().adopt(el.remove().setStyles({'margin': '0', 'position': 'static'}));
+		this.dom.content.empty().adopt(el.remove().setStyles(styles));
 		return this;
 	},
 
