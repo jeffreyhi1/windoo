@@ -402,6 +402,7 @@ var Windoo = new Class({
 			limit: (inbody ? {'x': [xLimit], 'y': [0]} : {}),
 			snap: this.options.snap.move,
 			onBeforeStart: function(){
+				self.focus();
 				this.shade = new Fx.Overlay(window, {'styles': {
 					'cursor': this.options.handle.getStyle('cursor'),
 					'background': self.theme.shadeBackground,
@@ -419,7 +420,7 @@ var Windoo = new Class({
 				} else if (window.gecko){
 					Element.$overlay.call(this.shade.overlay, false, 2);
 				}
-				self.fireEvent('onBeforeDrag', this).focus();
+				self.fireEvent('onBeforeDrag', this);
 			},
 			onStart: function(){
 				if (self.maximized && !self.minimized) this.stop();
