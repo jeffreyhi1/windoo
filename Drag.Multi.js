@@ -48,7 +48,7 @@ Example:
 			var size = $(document.body).getSize().scrollSize;
 			this.shade = new Element('div', {
 				styles: {
-					position: "absolute",
+					position: 'absolute',
 					top: 0,
 					left: 0,
 					width: size.x,
@@ -61,14 +61,14 @@ Example:
 
 		onStart: function(){
 			$each(arguments, function(el){
-				el.addClass("ondrag");
+				el.addClass('ondrag');
 			});
 		},
 
 		onComplete: function(){
 			this.shade.remove();
 			$each(arguments, function(el){
-				el.removeClass("ondrag");
+				el.removeClass('ondrag');
 			});
 		}
 
@@ -193,6 +193,19 @@ Drag.Multi = Drag.Base.extend({
 		return this;
 	},
 
+	/*
+	Property: detach
+		Stop transformations described by the argument.
+
+	Arguments:
+		mod - Bind object returned by <Drag.Multi::add>
+	*/
+
+	detach: function(mod){
+		for (var z in mod) if ($type(mod[z]) == 'object' && !mod[z].binded) this.modifiers[z].remove(mod[z]);
+		return this;
+	},
+
 	start: function(event){
 		this.fireEvent('onBeforeStart', this.element);
 		this.mouse.start = event.page;
@@ -204,7 +217,7 @@ Drag.Multi = Drag.Base.extend({
 				mod.$limit = [];
 				var limit = mod.limit;
 				if (limit) for (var i = 0; i < 2; i++){
-					if ($chk(limit[i])) mod.$limit[i] = ($type(limit[i]) == "function") ? limit[i](mod) : limit[i];
+					if ($chk(limit[i])) mod.$limit[i] = ($type(limit[i]) == 'function') ? limit[i](mod) : limit[i];
 				}
 			}, this);
 		}

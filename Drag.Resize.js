@@ -198,6 +198,7 @@ Drag.Resize = new Class({
 		var self = this;
 		this.el = $(el);
 		this.fx = {};
+		this.binds = {};
 		this.setOptions(options);
 		this.options.container = this.options.container === null ? this.el.getParent() : $(this.options.container);
 		if ($type(this.options.direction) == 'string'){
@@ -358,6 +359,7 @@ Drag.Resize = new Class({
 				}
 			}
 			var binds = {move: drag.add(el, moveOpts)}, resize = {opts: {}, bind: {}};
+			this.binds[d] = binds;
 			if ($defined(mod.x)){
 				resize.opts.x = {
 					limit: mod.x < 0 ? false : resizeLimit.x,
@@ -402,6 +404,19 @@ Drag.Resize = new Class({
 				if(!self.started) this.removeClass(self.options.hoverClass);
 			});
 		}
+	},
+
+	/*
+	Property: add
+		Call given function for each <Drag.Multi> instance created by <Drag.Resize>. Emulates onBuild event execution.
+
+	Arguments:
+		callback - the callback function called with arguments [direction, bind]
+	*/
+
+	add: function(callback){
+		for (var d in this.options.direction)
+			callback.call(this, d, this.binds[d]);
 	}
 
 });
