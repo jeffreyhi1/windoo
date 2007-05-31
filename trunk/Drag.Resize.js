@@ -102,7 +102,6 @@ Fx.Overlay = new Class({
 Fx.Overlay.implement(new Options);
 Fx.Overlay.windowPadding = (window.ie6) ? {x: 21, y: 4} : {x: 0, y: 0};
 
-
 Drag.Multi.$direction = {
 	east: { 'x':1 },
 	west: { 'x':-1 },
@@ -210,17 +209,15 @@ Drag.Resize = new Class({
 				dir.each(function(d){ this[d] = Drag.Multi.$direction[d]; }, this.options.direction);
 			}
 		}
-
-		var ce = this.el.getCoordinates();
+		var ce = this.el.getCoordinates(), positionStyle = this.el.getStyle('position');
 		this.el.setStyles({'width': ce.width, 'height': ce.height});
 		if (this.options.container){
-			if (this.el.getStyle('position') != 'relative'){
+			if (!(['relative', 'fixed'].contains(positionStyle))){
 				var cc = this.options.container.getCoordinates();
 				this.el.setStyles({'left': ce.left - cc.left, 'top': ce.top - cc.top});
 			}
 			this.options.moveLimit = $merge({'x': [0], 'y': [0]}, this.options.moveLimit);
 		}
-
 		if (this.options.preserveRatio){
 			var R = ce.width / ce.height;
 			// fix limits according to aspect ratio
@@ -246,13 +243,13 @@ Drag.Resize = new Class({
 			this.ghost = new Element('div', {'class': this.options.ghostClass, 'styles': {'display': 'none'}}).injectAfter(this.el);
 			for (var d in this.options.direction) this.ghost.adopt(new Element('div', {'class': this.options.classPrefix + d}));
 		}
-
 		var rOpts = {
 			snap: this.options.snap,
 			onBeforeStart: function(){
 				self.fireEvent('onBeforeStart', this);
 				self.started = true;
 				this.shade = new Fx.Overlay(window, {'styles': {
+					'position': positionStyle,
 					'cursor': this.options.handle.getStyle('cursor'),
 					'background': self.options.shadeBackground,
 					'z-index': self.options.zIndex + 1
@@ -299,7 +296,6 @@ Drag.Resize = new Class({
 				self.fireEvent('onComplete', this);
 			}
 		};
-
 		var rlimitFcn = function(sign, props, limit){
 			if (!self.options.container) return limit;
 			if (!limit) limit = [0];
@@ -319,11 +315,6 @@ Drag.Resize = new Class({
 		};
 		var mlimitFcn = function(props, limit, rlimit){
 			var container = self.options.container;
-			if (!container){
-				if (!limit) limit=false;
-				container = self.el.getParent();
-			} else if (!limit) limit=[0];
-
 			var generator = function(lim, rlim, op, rdef){
 				if (!$type(rlim)) rlim = rdef;
 				var lim_type = $type(lim);
@@ -339,12 +330,15 @@ Drag.Resize = new Class({
 					}
 				};
 			};
+			if (!container){
+				if (!limit) limit=false;
+				container = self.el.getParent();
+			} else if (!limit) limit=[0];
 			return [generator(limit[0],rlimit[1],'max',null), generator(limit[1],rlimit[0],'min',limit[1])];
 		};
 
 		var opt = this.options, el = this.ghost ? this.ghost : this.el;
 		if ($type(opt.grid) == 'number') opt.grid = {'x': opt.grid, 'y': opt.grid};
-
 		for (var d in opt.direction){
 			var mod = opt.direction[d];
 			rOpts.handle = new Element('div', {'class': opt.classPrefix + d}).inject(this.el);
@@ -363,7 +357,6 @@ Drag.Resize = new Class({
 					};
 				}
 			}
-
 			var binds = {move: drag.add(el, moveOpts)}, resize = {opts: {}, bind: {}};
 			if ($defined(mod.x)){
 				resize.opts.x = {
@@ -384,7 +377,6 @@ Drag.Resize = new Class({
 				if (mod.y < 0) resize.bind.y = binds.move.y;
 			}
 			binds.resize = drag.add(el, resize.opts, resize.bind);
-
 			if (opt.preserveRatio){
 				var aspect = {
 					'x': {
@@ -402,7 +394,6 @@ Drag.Resize = new Class({
 			}
 			this.fireEvent('onBuild', [d, binds]);
 		}
-
 		if (this.options.hoverClass){
 			this.el.addEvent('mouseenter', function(ev){
 				this.addClass(self.options.hoverClass);
@@ -416,16 +407,16 @@ Drag.Resize = new Class({
 });
 Drag.Resize.implement(new Events, new Options);
 
-
-Element.$overlay = function(hide){
+Element.$overlay = function(hide, deltaZ){
+	deltaZ = $pick(deltaZ, 1);
 	if (!this.fixOverlayElement) this.fixOverlayElement = new Element('iframe', {
 		'properties': {'frameborder': '0', 'scrolling': 'no', 'src': 'javascript:void(0);'},
-		'styles': {'position': 'absolute', 'border': 'none', 'filter': 'progid:DXImageTransform.Microsoft.Alpha(opacity=0)'}}).injectBefore(this);
+		'styles': {'position': this.getStyle('position'), 'border': 'none', 'filter': 'progid:DXImageTransform.Microsoft.Alpha(opacity=0)'}}).injectBefore(this);
 	if (hide) return this.fixOverlayElement.setStyle('display', 'none');
 	var z = this.getStyle('z-index').toInt() || 0;
-	if (z < 1) this.setStyle('z-index', '' + (z = 2) );
+	if (z < deltaZ) this.setStyle('z-index', '' + (z = deltaZ + 1) );
 	var pos = this.getCoordinates();
-	return this.fixOverlayElement.setStyles({'display' : '', 'z-index': '' + (z - 1),
+	return this.fixOverlayElement.setStyles({'display' : '', 'z-index': '' + (z - deltaZ),
 		'left': pos.left + 'px', 'top': pos.top + 'px',
 		'width': pos.width + 'px', 'height': pos.height + 'px'});
 };
@@ -444,6 +435,7 @@ Element.extend({
 
 	Arguments:
 		hide - optional, hide overlay element if true.
+		deltaZ - optional, (overlay z-index) = (element z-index) - deltaZ. defaults to 1.
 	*/
 
 	fixOverlay: window.ie6 ? Element.$overlay : function(){ return false; },
