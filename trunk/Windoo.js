@@ -139,6 +139,7 @@ var Windoo = new Class({
 		draggable: true,
 		positionStyle: 'absolute',
 		resizeLimit: {'x': [0], 'y': [0]},
+		padding: {'top': 0, 'right': 0, 'bottom': 0, 'left': 0},
 		ghost: {'resize': false, 'move': false},
 		snap: {'resize': 6, 'move': 6},
 		destroyOnClose: true,
@@ -193,6 +194,8 @@ var Windoo = new Class({
 		var self = this;
 		this.fx = {};
 		this.bound = {};
+		this.padding = {};
+		this.panels = [];
 		this.zIndex = 0;
 		this.visible = false;
 
@@ -200,6 +203,7 @@ var Windoo = new Class({
 		this.setOptions(options);
 		var theme = this.theme = $type(this.options.theme) == 'string' ? Windoo.Themes[this.options.theme] : this.options.theme;
 		this.options.container = $(this.options.container || document.body);
+		for (var side in theme.padding) this.padding[side] = theme.padding[side] + this.options.padding[side];
 
 		['x', 'y'].each(function(z){
 			var lim = this.options.resizeLimit;
@@ -369,19 +373,20 @@ var Windoo = new Class({
 				if (this.ghost){
 					var size = self.getState().outer;
 					self.setSize(size.width, size.height);
+				} else {
+					self.fix().fireEvent('onResizeComplete', this);
 				}
-				self.fix().fireEvent('onResizeComplete', this);
 			},
 			onBuild: function(dir, binds){
 				if (!this.ghost){
-					var fx = this.fx[dir];
+					var fx = this.fx[dir], nolimit = {'x':{'limit': false}, 'y':{'limit': false}};
 					if (binds.resize.y) ['strut', 'body', 'shm'].each(function(name){
 						if (this[name]) fx.add(this[name], {'y': {direction: binds.resize.y.direction, style: 'height'}}, binds.resize);
 					}, self.dom);
 					[self.shadow, self.el.fixOverlayElement].each(function(el){
 						if (el){
-							fx.add(el, binds.resize, binds.resize);
-							if (binds.move) fx.add(el, binds.move, binds.move);
+							fx.add(el, $merge(binds.resize, nolimit), binds.resize);
+							if (binds.move) fx.add(el, $merge(binds.move, nolimit), binds.move);
 						}
 					}, self);
 				}
@@ -503,10 +508,10 @@ var Windoo = new Class({
 		var styles = {'margin': '0', 'position': 'static'};
 		el = $(el);
 		options = options || {};
-		var size = el.getSize().size, pos = el.getPosition(), pad = options.ignorePadding ? [0, 0, 0, 0] : this.theme.padding;
-		this.setSize(size.x + pad[1] + pad[3], size.y + pad[0] + pad[2]);
+		var size = el.getSize().size, pos = el.getPosition(), coeff = options.ignorePadding ? 0 : 1, pad = this.padding;
+		this.setSize(size.x + coeff * (pad.right + pad.left), size.y + coeff * (pad.top + pad.bottom));
 		if (options.resetWidth) styles.width = 'auto';
-		if (options.position) this.setPosition(pos.x - pad[3], pos.y - pad[0]);
+		if (options.position) this.setPosition(pos.x - coeff * pad.left, pos.y - coeff * pad.top);
 		this.dom.content.empty().adopt(el.remove().setStyles(styles));
 		return this;
 	},
@@ -700,10 +705,9 @@ var Windoo = new Class({
 
 	setSize: function(width, height){
 		this.el.setStyles({'width': width, 'height': height});
-		var padding = this.theme.padding;
-		this.dom.strut.setStyle('height', height - padding[0]);
-		this.dom.body.setStyle('height', height - padding[0] - padding[2]);
-		return this.fix();
+		this.dom.strut.setStyle('height', height - this.padding.top);
+		this.dom.body.setStyle('height', height - this.padding.top - this.padding.bottom);
+		return this.fix().fireEvent('onResizeComplete', this.fx.resize);
 	},
 
 	/*
@@ -859,7 +863,7 @@ var Windoo = new Class({
 			this.$restoreMini = this.getState();
 			var container = this.options.container;
 			if (container === document.body) container = window;
-			var s = container.getSize(), pad = this.theme.padding, height = pad[0] + pad[2];
+			var s = container.getSize(), height = this.padding.top + this.padding.bottom;
 			this.setSize('auto', height).setPosition(s.scroll.x + 10, s.scroll.y + s.size.y - height - 10);
 			this.el.addClass(klass);
 			this.fireEvent('onMinimize');
@@ -891,7 +895,7 @@ var Windoo = new Class({
 		if (this.rolled){
 			this.$restoreRoll = this.getState().outer;
 			var pad = this.theme.padding;
-			this.setSize(this.$restoreRoll.width, pad[0] + pad[2]);
+			this.setSize(this.$restoreRoll.width, pad.top + pad.bottom);
 			this.el.addClass(klass);
 			this.fireEvent('onRoll');
 		} else {
@@ -974,10 +978,71 @@ var Windoo = new Class({
 
 	bringTop: function(){
 		return this.setZIndex(this.wm.maxZIndex());
+	},
+
+	addPanel: function(element, position){
+		position = $pick(position, 'bottom');
+		var dim, ndim,
+			size = this.el.getSize().size,
+			styles = {'position': 'absolute'},
+			panel = {'element': $(element), 'position': position, 'fx': []};
+		switch (position){
+			case 'top':
+			case 'bottom': dim = 'x'; ndim = 'y'; break;
+			case 'left':
+			case 'right': dim = 'y'; ndim = 'x'; break;
+			default: return this;
+		}
+		var options = Windoo.panelOptions[dim];
+		styles[position] = this.padding[position];
+		styles[options.deltaP] = this.padding[options.deltaP];
+		element = panel.element.setStyles(styles).inject(this.el);
+		panel.padding = element.getSize().size[ndim];
+		this.padding[position] += panel.padding;
+		if (!this.options.ghost.resize){
+			this.fx.resize.add(function(dir, binds){
+				if (binds.resize[dim]){
+					var fx = this.fx[dir], mod = {};
+					mod[dim] = $merge(binds.resize[dim]);
+					mod[dim].limit = null;
+					panel.fx.push({
+						'fx': fx,
+						'bind': fx.add(panel.element, mod, binds.resize)
+					});
+				}
+			});
+		}
+		this.addEvent('onResizeComplete', function(){
+			panel.element.setStyle(options.style, this.el.getSize().size[dim] - this.padding[options.deltaM] - this.padding[options.deltaP] - 1);
+		});
+		this.panels.push(panel);
+		return this.setSize(size.x, size.y);
+	},
+
+	removePanel: function(element){
+		var panel, size;
+		element = $(element);
+		for (var i = 0, len = this.panels.length; i < len; i++){
+			panel = this.panels[i];
+			if (panel.element === element){
+				this.padding[panel.position] -= panel.padding;
+				panel.element.remove();
+				panel.fx.each(function(pfx){ pfx.fx.detach(pfx.bind); });
+				this.panels.splice(i, 1);
+				size = this.el.getSize().size,
+				this.setSize(size.x, size.y)
+				break;
+			}
+		}
+		return this;
 	}
 
 });
 Windoo.implement(new Events, new Options);
+Windoo.panelOptions = {
+	'x': {'style': 'width', 'deltaP': 'left', 'deltaM': 'right'},
+	'y': {'style': 'height', 'deltaP': 'top', 'deltaM': 'bottom'}
+};
 Windoo.ieTableCell = '<table style="position:absolute;top:0;left:0;border:none;border-collapse:collapse;padding:0;"><tr><td style="border:none;overflow:auto;position:relative;padding:0;"></td></tr></table>';
 
 /*
@@ -1123,7 +1188,7 @@ Windoo.Themes = {
 
 	aero: {
 		'name': 'aero',
-		'padding': [28, 7, 30, 7],
+		'padding': {'top': 28, 'right': 10, 'bottom': 15, 'left': 10},
 		'resizeLimit': {'x': [175], 'y': [58]},
 		'className': 'windoo windoo-aero',
 		'sizerClass': 'sizer',
@@ -1142,7 +1207,7 @@ Windoo.Themes = {
 
 	alphacube: {
 		'name': 'alphacube',
-		'padding': [22, 10, 15, 10],
+		'padding': {'top': 22, 'right': 10, 'bottom': 15, 'left': 10},
 		'resizeLimit': {'x': [275], 'y': [37]},
 		'className': 'windoo windoo-alphacube',
 		'sizerClass': 'sizer',
