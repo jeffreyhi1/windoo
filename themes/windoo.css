@@ -44,8 +44,9 @@ div.windoo-maximized .windoo-sizer, div.windoo-minimized .windoo-sizer, div.wind
 div.windoo-minimized a.windoo-restore {
 	display:block !important;
 }
-div.windoo-minimized div.windoo-body {
-	display:none;
+div.windoo-minimized div.windoo-body, div.windoo-minimized .windoo-pane,
+div.windoo-rolled div.windoo-body, div.windoo-rolled .windoo-pane {
+	display:none !important;
 }
 
 /* Windoo sizers */
