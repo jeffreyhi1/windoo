@@ -126,3 +126,15 @@ div.windoo-aero a.windoo-menu {
 div.windoo-aero-minimized {
 	width:165px !important;
 }
+
+div.windoo-aero-alert-message {
+}
+div.windoo-aero-confirm-message {
+}
+div.windoo-aero-alert-pane, div.windoo-aero-confirm-pane {
+	text-align:center;
+}
+div.windoo-aero-alert-pane input, div.windoo-aero-confirm-pane input {
+	margin:0 .5em;
+	width:4em;
+}

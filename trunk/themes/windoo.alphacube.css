@@ -131,3 +131,15 @@ div.window-alphacube-shadow-simple {
 	-moz-border-radius:12px;
 	border-radius:12px;
 }
+
+div.windoo-alphacube-alert-message {
+}
+div.windoo-alphacube-confirm-message {
+}
+div.windoo-alphacube-alert-pane, div.windoo-alphacube-confirm-pane {
+	text-align:center;
+}
+div.windoo-alphacube-alert-pane input, div.windoo-alphacube-confirm-pane input {
+	margin:0 .5em;
+	width:6em;
+}
