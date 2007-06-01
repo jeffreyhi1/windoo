@@ -633,7 +633,7 @@ var Windoo = new Class({
 		if (this.modalOverlay) this.modalOverlay.show();
 		return this.effect('show', noeffect, function(){
 			this.el.setStyle('visibility', 'visible');
-			this.fix().fireEvent('onShow');
+			this.fireEvent('onShow').fix();
 		}.bind(this));
 	},
 
@@ -683,7 +683,8 @@ var Windoo = new Class({
 	*/
 
 	getState: function(){
-		var outer = this.el.getCoordinates(), cont = this.options.container.getCoordinates();
+		var outer = this.el.getCoordinates(), container = this.options.container,
+			cont = container === $(document.body) ? {'top': 0, 'left': 0} : container.getCoordinates();
 		outer.top -= cont.top;
 		outer.right -= cont.left;
 		outer.bottom -= cont.top;
@@ -704,9 +705,10 @@ var Windoo = new Class({
 	*/
 
 	setSize: function(width, height){
+		var pad = this.padding;
 		this.el.setStyles({'width': width, 'height': height});
-		this.dom.strut.setStyle('height', height - this.padding.top);
-		this.dom.body.setStyle('height', height - this.padding.top - this.padding.bottom);
+		this.dom.strut.setStyle('height', Math.max(0, height - pad.top));
+		this.dom.body.setStyle('height', Math.max(0, height - pad.top - pad.bottom));
 		return this.fix().fireEvent('onResizeComplete', this.fx.resize);
 	},
 
@@ -835,9 +837,10 @@ var Windoo = new Class({
 			if (container === document.body) container = window;
 			var s = container.getSize(), limit = this.options.resizeLimit;
 			if (limit) for (var z in limit) s.size[z] = bound(s.size[z], limit[z]);
-			this.setSize(s.size.x, s.size.y).setPosition(s.scroll.x, s.scroll.y);
 			this.el.addClass(klass);
-			this.fireEvent('onMaximize');
+			this.setSize(s.size.x, s.size.y)
+				.setPosition(s.scroll.x, s.scroll.y)
+				.fireEvent('onMaximize');
 		} else {
 			this.el.removeClass(klass);
 			this.restoreState(this.$restoreMaxi).fireEvent('onRestore', 'maximize');
@@ -863,10 +866,11 @@ var Windoo = new Class({
 			this.$restoreMini = this.getState();
 			var container = this.options.container;
 			if (container === document.body) container = window;
-			var s = container.getSize(), height = this.padding.top + this.padding.bottom;
-			this.setSize('auto', height).setPosition(s.scroll.x + 10, s.scroll.y + s.size.y - height - 10);
+			var s = container.getSize(), height = this.theme.padding.top + this.theme.padding.bottom;
 			this.el.addClass(klass);
-			this.fireEvent('onMinimize');
+			this.setSize('auto', height)
+				.setPosition(s.scroll.x + 10, s.scroll.y + s.size.y - height - 10)
+				.fireEvent('onMinimize');
 		} else {
 			this.el.removeClass(klass);
 			this.restoreState(this.$restoreMini).fireEvent('onRestore', 'minimize');
