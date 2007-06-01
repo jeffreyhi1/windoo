@@ -662,6 +662,7 @@ var Windoo = new Class({
 		if (this.shadow) this.shadow.setStyle('display', 'none');
 		return this.effect('close', noeffect, function(){
 			this.el.setStyle('display', 'none');
+			if (this.modalOverlay) this.modalOverlay.hide();
 			this.fix(true).fireEvent('onClose');
 			if (this.options.destroyOnClose) this.destroy();
 		}.bind(this));
