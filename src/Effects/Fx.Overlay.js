@@ -75,7 +75,7 @@ Fx.Overlay = new Class({
 	*/
 
 	hide: function(){
-		this.overlay.setStyle('display', 'hidden');
+		this.overlay.setStyle('display', 'none');
 		return this;
 	},
 
