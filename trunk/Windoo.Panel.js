@@ -82,7 +82,7 @@ Windoo.implement({
 			if (panel.element === element){
 				this.padding[panel.position] -= panel.padding;
 				panel.element.remove();
-				panel.fx.each(function(pfx){ pfx.fx.detach(pfx.bind); });
+				panel.fx.each(function(pfx){ pfx.fx.detach(pfx.bind); }, this);
 				this.panels.splice(i, 1);
 				size = this.el.getSize().size,
 				this.setSize(size.x, size.y)

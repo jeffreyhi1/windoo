@@ -11,14 +11,14 @@ Copyright:
 */
 
 /*
-Property: Windoo.Alert
-	Create inline modal alert dialog.
+Property: Windoo.Dialog
+	Abstract inline modal Dialog class.
 
 Arguments:
 	message - message text.
-	options - Windoo.Alert options object.
+	options - Options object.
 
-Windoo.Alert options:
+Options:
 	window - custom Windoo window options. see Windoo options.
 	buttons - Buttons object.
 	panel - custom Panel element options. see Element options.
@@ -26,44 +26,84 @@ Windoo.Alert options:
 
 Buttons:
 	ok - custom OK button options. see Element options.
+	cancel - custom Cancel button options. see Element options.
+
+Events:
+	onConfirm - optional, function to execute when dialog is confirmed.
+	onCancel - optional, function to execute when dialog is rejected.
+
 */
 
-Windoo.Alert = function(message,  options){
-	options = $merge(Windoo.Alert.options, options);
-	var button = new Element('input', $merge({
-		'events': {
-			'click': function(){
-				win.close();
-			}
-		}
-	}, options.buttons.ok));
-	var win = new Windoo($merge({
-		'onShow': function(){
-			button.focus();
-		}
-	}, options.window));
-	var bound = function(ev){
-		ev = new Event(ev);
-		if (['enter', 'esc'].contains(ev.key)){
-			win.close();
-			ev.stop();
-			document.removeEvent(ev.type, bound);
-		}
-	};
-	document.addEvent('keydown', bound);
-	return win.addPanel(new Element('div', $merge({'class': win.classPrefix('alert-pane')}, options.panel)).adopt(button))
-			  .adopt(new Element('div', $merge({'class': win.classPrefix('alert-message')}, options.message)).setHTML(message))
-			  .show();
-};
+Windoo.Dialog = Windoo.extend({
 
-Windoo.Alert.options = {
+	initialize: function(message, options){
+		var self = this, dialog = this.dialog = {
+			dom: {},
+			buttons: {},
+			options: $merge(Windoo.Dialog.options, options),
+			message: message
+		};
+		this.parent($merge({
+			'onShow': function(){
+				if (dialog.buttons.ok) dialog.buttons.ok.focus();
+			}
+		}, dialog.options.window));
+		dialog.bound = function(ev){
+			ev = new Event(ev);
+			if (['enter', 'esc'].contains(ev.key)){
+				dialog.result = (ev.key == 'enter') ? !dialog.cancelFocused : false;
+				self.close();
+				ev.stop();
+			}
+		};
+		document.addEvent('keydown', dialog.bound);
+		this.addEvent('onClose', function(){
+			document.removeEvent('keydown', dialog.bound);
+			dialog.options[(dialog.result) ? 'onConfirm' : 'onCancel'].call(this);
+		});
+	},
+
+	buildDialog: function(klass, buttons){
+		var self = this, dialog = this.dialog;
+		if ('ok' in buttons) dialog.buttons.ok =  new Element('input', $merge({
+			'events': {
+				'click': function(){
+					dialog.result = true;
+					self.close();
+				}
+			}
+		}, dialog.options.buttons.ok));
+		if ('cancel' in buttons) dialog.buttons.cancel = new Element('input', $merge({
+			'events': {
+				'click': function(){
+					dialog.result = false;
+					self.close();
+				}
+			}
+		}, dialog.options.buttons.cancel)).addEvents({
+			'focus': function(){
+				dialog.cancelFocused = true;
+			},
+			'blur': function(){
+				dialog.cancelFocused = false;
+			}
+		});
+		dialog.dom.panel = new Element('div', $merge({'class': this.classPrefix(klass + '-pane')}, dialog.options.panel));
+		for (var btn in buttons) if (buttons[btn]) dialog.dom.panel.adopt(dialog.buttons[btn]);
+		dialog.dom.message = new Element('div', $merge({'class': this.classPrefix(klass + '-message')}, dialog.options.message));
+		return this.addPanel(dialog.dom.panel).adopt(dialog.dom.message.setHTML(dialog.message));
+	}
+
+});
+
+Windoo.Dialog.options = {
 	'window': {
 		'modal': true,
 		'resizable': false,
 		'buttons': {
 			'minimize': false,
 			'maximize': false
-		},
+		}
 	},
 	'buttons': {
 		'ok': {
@@ -71,87 +111,7 @@ Windoo.Alert.options = {
 				'type': 'button',
 				'value': 'OK'
 			}
-		}
-	},
-	'onConfirm': Class.empty(),
-	'panel': null,
-	'message': null
-};
-
-/*
-Property: Windoo.Confirm
-	Create inline modal alert dialog.
-	Inherits options from <Windoo.Alert>.
-
-Arguments:
-	message - message text.
-	options - Windoo.Alert options object plus Window.Confirm options.
-
-Windoo.Confirm options:
-	onConfirm - optional, function to execute when dialog is confirmed.
-	onCancel - optional, function to execute when dialog is rejected.
-
-Buttons:
-	ok - custom OK button options. see Element options.
-	cancel - custom Cancel button options. see Element options.
-*/
-
-Windoo.Confirm = function(message, options){
-	var result, cancelFocused = false;
-	options = $merge(Windoo.Confirm.options, options);
-	var buttons = {
-		'ok': new Element('input', $merge({
-			'events': {
-				'click': function(){
-					result = true;
-					win.close();
-				}
-			}
-		}, options.buttons.ok)),
-		'cancel': new Element('input', $merge({
-			'events': {
-				'click': function(){
-					result = false;
-					win.close();
-				}
-			}
-		}, options.buttons.cancel)).addEvents({
-			'focus': function(){
-				cancelFocused = true;
-			},
-			'blur': function(){
-				cancelFocused = false;
-			}
-		})
-	};
-	var win = new Windoo($merge({
-		'onShow': function(){
-			buttons.ok.focus();
-		}
-	}, options.window)).addEvent('onClose', function(){
-		options[(result) ? 'onConfirm' : 'onCancel'].call(this);
-	});
-	var bound = function(ev){
-		ev = new Event(ev);
-		if (['enter', 'esc'].contains(ev.key)){
-			if (ev.key == 'enter'){
-				result = !cancelFocused;
-			} else {
-				result = false;
-			}
-			win.close();
-			ev.stop();
-			document.removeEvent(ev.type, bound);
-		}
-	};
-	document.addEvent('keydown', bound);
-	return win.addPanel(new Element('div', $merge({'class': win.classPrefix('confirm-pane')}, options.panel)).adopt(buttons.ok, buttons.cancel))
-			  .adopt(new Element('div', $merge({'class': win.classPrefix('confirm-message')}, options.message)).setHTML(message))
-			  .show();
-};
-
-Windoo.Confirm.options = $merge(Windoo.Alert.options, {
-	'buttons': {
+		},
 		'cancel': {
 			'properties': {
 				'type': 'button',
@@ -159,6 +119,47 @@ Windoo.Confirm.options = $merge(Windoo.Alert.options, {
 			}
 		}
 	},
+	'panel': null,
+	'message': null,
 	'onConfirm': Class.empty,
 	'onCancel': Class.empty
+};
+
+/*
+Property: Windoo.Alert
+	Alert inline dialog class.
+	Inherits properties, methods, events, and options from <Windoo.Dialog>.
+
+Arguments:
+	message - message text.
+	options - Windoo.Dialog options object.
+*/
+
+Windoo.Alert = Windoo.Dialog.extend({
+
+	initialize: function(message,  options){
+		this.parent(message,  options);
+		this.buildDialog('alert', {'ok': true}).show();
+	}
+
+});
+
+/*
+Property: Windoo.Confirm
+	Confirm inline dialog class.
+	Inherits properties, methods, events, and options from <Windoo.Dialog>.
+
+Arguments:
+	message - message text.
+	options - Windoo.Dialog options object.
+
+*/
+
+Windoo.Confirm = Windoo.Dialog.extend({
+
+	initialize: function(message,  options){
+		this.parent(message,  options);
+		this.buildDialog('confirm', {'ok': true, 'cancel': true}).show();
+	}
+
 });
