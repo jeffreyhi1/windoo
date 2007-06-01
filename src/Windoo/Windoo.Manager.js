@@ -1,13 +1,7 @@
 /*
-Script: Windoo.WM.js
+Script: Windoo.Manager.js
 	Windoo Window Manager.
 	Contains <Windoo.Manager>, <Windoo.$wm>.
-
-License:
-	MIT-style license.
-
-Copyright:
-	copyright (c) 2007 Yevgen Gorshkov
 */
 
 /*

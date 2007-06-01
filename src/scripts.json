@@ -1,0 +1,56 @@
+{
+
+	"Effects": {
+		"Fx.Overlay": {
+			deps: [],
+			desc: ""
+		},
+	},
+
+	"Drag": {
+		"Drag.Multi": {
+			deps: [],
+			desc: "Drag.Base class extension which adds support for modifying multiple css properties of different elements simultaneously"
+		},
+		"Drag.Resize": {
+			deps: ["Drag.Multi", "Fx.Overlay"],
+			desc: "8-way resizable elements"
+		},
+		"Drag.ResizeImage": {
+			deps: ["Drag.Resize"],
+			desc: "8-way resizable images"
+		}
+	},
+	
+	"Windoo": {
+		"Windoo.Core": {
+			deps: ["Windoo.Manager", "Fx.Overlay"],
+			desc: ""
+		},
+		"Windoo.Manager": {
+			deps: ["Windoo.Core"],
+			desc: ""
+		},
+		"Windoo.Drag": {
+			deps: ["Windoo.Core", "Drag.Resize"],
+			desc: "Requires <Drag.Move> standard Mootools component."
+		},
+		"Windoo.Themes": {
+			deps: ["Windoo.Core"],
+			desc: ""
+		},
+		"Windoo.Ajax": {
+			deps: ["Windoo.Core"],
+			desc: ""
+		},
+		"Windoo.Panel": {
+			deps: ["Windoo.Core"],
+			desc: ""
+		},
+		"Windoo.Dialog": {
+			deps: ["Windoo.Panel"],
+			desc: ""
+		}
+	}
+
+}

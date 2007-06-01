@@ -1,13 +1,7 @@
 /*
 Script: Windoo.Panel.js
-	Windoo extension border panel extension.
+	Windoo border panel extension.
 	Contains <Windoo::addPanel>, <Windoo::removePanel>.
-
-License:
-	MIT-style license.
-
-Copyright:
-	copyright (c) 2007 Yevgen Gorshkov
 */
 
 Windoo.implement({
@@ -84,8 +78,8 @@ Windoo.implement({
 				panel.element.remove();
 				panel.fx.each(function(pfx){ pfx.fx.detach(pfx.bind); }, this);
 				this.panels.splice(i, 1);
-				size = this.el.getSize().size,
-				this.setSize(size.x, size.y)
+				size = this.el.getSize().size;
+				this.setSize(size.x, size.y);
 				break;
 			}
 		}

@@ -1,3 +1,17 @@
+/*
+Script: Drag.ResizeImage.js
+	Drag.ResizeImage class.
+	Contains <Drag.ResizeImage>.
+*/
+
+/*
+Class: Drag.ResizeImage
+	Creates <Drag.Resize> wrapper instance around the image element.
+
+Arguments:
+	el - the image $(element) to apply the resize to.
+	options - see <Drag.Resize> options.
+*/
 
 Drag.ResizeImage = new Class({
 
@@ -14,8 +28,14 @@ Drag.ResizeImage = new Class({
 		this.fx = new Drag.Resize(this.wrapper, $merge({'preserveRatio': true}, options));
 	},
 
+	/*
+	Property: stop
+		Stop the effect and restore the image element with new size.
+	*/
+
 	stop: function(){
 		this.image.setStyles($merge(this.styles, {'width': this.wrapper.getStyle('width'), 'height': this.wrapper.getStyle('height')})).remove().injectBefore(this.wrapper);
+		this.fx = null;
 		this.wrapper.remove(true);
 	}
 

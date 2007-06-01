@@ -2,12 +2,6 @@
 Script: Windoo.Ajax.js
 	Windoo Ajax helper class.
 	Contains <Windoo.Ajax>.
-
-License:
-	MIT-style license.
-
-Copyright:
-	copyright (c) 2007 Yevgen Gorshkov
 */
 
 /*
