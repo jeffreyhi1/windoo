@@ -2,12 +2,6 @@
 Script: Windoo.Dialog.js
 	Windoo standard dialog helper functions.
 	Contains <Windoo.Alert>, <Windoo.Confirm>.
-
-License:
-	MIT-style license.
-
-Copyright:
-	copyright (c) 2007 Yevgen Gorshkov
 */
 
 /*

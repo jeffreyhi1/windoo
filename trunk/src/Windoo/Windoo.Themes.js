@@ -2,12 +2,6 @@
 Script: Windoo.Themes.js
 	Windoo additional themes.
 	Contains <Windoo.Themes.aero>.
-
-License:
-	MIT-style license.
-
-Copyright:
-	copyright (c) 2007 Yevgen Gorshkov
 */
 
 /*
