@@ -1,0 +1,7 @@
+#summary Drag.Multi, Drag.Resize, and Windoo examples.
+
+ * [http://windoo.110mb.com/examples/example.php Drag.Multi]: multiple elements styles change on mouse move
+ * [http://windoo.110mb.com/examples/resize.php Drag.Resize]: customizable 8-way resizable elements
+ * *[http://windoo.110mb.com/template/windoo.html Windoo]*: template Windoo page & demos
+ * [http://windoo.110mb.com/examples/windoo-builder.php Windoo builder]: configure your window
+ * [http://windoo.110mb.com/examples/windoo-ajax.php Windoo.Ajax]: dynamic window content loading
