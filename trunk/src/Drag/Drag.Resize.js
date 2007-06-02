@@ -1,6 +1,6 @@
 /*
 Script: Drag.Resize.js
-	Mootools Drag.Resize: 8-way resizable element extension.
+	Mootools Drag extension class for creating elements resizable in 8 directions.
 	Contains <Drag.Resize>, <Element::makeResizable>.
 */
 

@@ -1,6 +1,6 @@
 /*
 Script: Fx.Overlay.js
-	Mootools overlay class to cover target element content. Overlay utility to fix IE6 select tag bug. <Element::remove> modified accordingly.
+	Utility class for covering target element or browser window with overlay element. Overlay utility to fix IE6 select tag bug. <Element::remove> modified accordingly.
 	Contains <Fx.Overlay>, <Element::fixOverlay>.
 */
 

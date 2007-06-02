@@ -10,9 +10,9 @@ TODO:
 	- refactor action effects (make effects customizable)
 	- manage minimized windows with window manager
 	- window popup menu
-	- more themes
 	- cascade window positioning
-	- zindex for container vs wm
+	- z-index in container vs wm
+	- more themes
 */
 
 /*

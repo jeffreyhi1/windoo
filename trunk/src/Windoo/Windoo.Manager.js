@@ -1,6 +1,6 @@
 /*
 Script: Windoo.Manager.js
-	Windoo Window Manager.
+	Windoo window manager.
 	Contains <Windoo.Manager>, <Windoo.$wm>.
 */
 
