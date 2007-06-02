@@ -33,7 +33,7 @@
 		},
 		"Windoo.Drag": {
 			deps: ["Windoo.Core", "Drag.Resize"],
-			desc: "Contains draggable and resizable Windoo extensions. Note, requires <Drag.Move> standard Mootools component."
+			desc: "Contains draggable and resizable Windoo extensions. Note, requires Drag.Move standard Mootools component."
 		},
 		"Windoo.Themes": {
 			deps: ["Windoo.Core"],
