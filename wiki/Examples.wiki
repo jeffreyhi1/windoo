@@ -1,4 +1,5 @@
 #summary Drag.Multi, Drag.Resize, and Windoo examples.
+#labels Featured
 
  * [http://windoo.110mb.com/examples/example.php Drag.Multi]: multiple elements styles change on mouse move
  * [http://windoo.110mb.com/examples/resize.php Drag.Resize]: customizable 8-way resizable elements
