@@ -1,6 +1,6 @@
 /*
 Script: Windoo.Panel.js
-	Windoo border panel extension.
+	Windoo extension for creating border panels (toolbars).
 	Contains <Windoo::addPanel>, <Windoo::removePanel>.
 */
 

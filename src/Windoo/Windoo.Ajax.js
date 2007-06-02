@@ -1,6 +1,6 @@
 /*
 Script: Windoo.Ajax.js
-	Windoo Ajax helper class.
+	Ajax class extension for updating Windoo instance content.
 	Contains <Windoo.Ajax>.
 */
 

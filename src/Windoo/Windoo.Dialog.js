@@ -1,6 +1,6 @@
 /*
 Script: Windoo.Dialog.js
-	Windoo standard dialog helper functions.
+	Windoo standard modal dialog utility classes.
 	Contains <Windoo.Alert>, <Windoo.Confirm>.
 */
 

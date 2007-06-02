@@ -1,6 +1,6 @@
 /*
 Script: Drag.ResizeImage.js
-	Drag.ResizeImage class.
+	Utility class for making images resizable.
 	Contains <Drag.ResizeImage>.
 */
 
