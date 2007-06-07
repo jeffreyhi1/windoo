@@ -99,7 +99,7 @@ Drag.Resize = new Class({
 
 	initialize: function(el, options){
 		var self = this;
-		this.el = $(el);
+		this.element = this.el = $(el);
 		this.fx = {};
 		this.binds = {};
 		this.setOptions(options);

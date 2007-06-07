@@ -323,7 +323,7 @@ var Windoo = new Class({
 			},
 			'class': theme.classPrefix + '-shadow-' + theme.shadow
 		}).injectAfter(this.el);
-		if (theme.shadow == 'image'){
+		if (theme.complexShadow){
 			var $row = function(name){
 				var els = ['l', 'r', 'm'].map(function(e){ return new Element('div', {'class': e}); });
 				var el = new Element('div', {'class': name});
@@ -467,6 +467,7 @@ var Windoo = new Class({
 		if (noeffect) opts.duration = 0;
 		var fx = this.options.effects[name];
 		new Fx.Styles(fx.el || this.el, $merge(fx.options, opts)).start(fx.styles);
+		if (this.shadow) new Fx.Styles(this.shadow, fx.options).start(fx.styles);
 		return this;
 	},
 
@@ -484,7 +485,6 @@ var Windoo = new Class({
 	hide: function(noeffect){
 		if (!this.visible) return this;
 		this.visible = false;
-		if (this.shadow) this.shadow.setStyle('display', 'none');
 		return this.effect('hide', noeffect, function(){
 			this.el.setStyle('display', 'none');
 			if (this.modalOverlay) this.modalOverlay.hide();
@@ -506,9 +506,10 @@ var Windoo = new Class({
 	show: function(noeffect){
 		if (this.visible) return this;
 		this.visible = true;
-		this.bringTop();
-		this.el.setStyle('display', '').fixOverlay();
 		if (this.modalOverlay) this.modalOverlay.show();
+		this.el.setStyle('display', '');
+		this.bringTop().fix();
+		if (this.shadow) this.shadow.setStyle('visibility', 'hidden');
 		return this.effect('show', noeffect, function(){
 			this.el.setStyle('visibility', 'visible');
 			this.fireEvent('onShow').fix();
@@ -525,7 +526,7 @@ var Windoo = new Class({
 
 	fix: function(hide){
 		this.el.fixOverlay(hide || !this.visible);
-		return this.fixShadow();
+		return this.fixShadow(hide);
 	},
 
 	/*
@@ -536,11 +537,12 @@ var Windoo = new Class({
 		The Windoo.
 	*/
 
-	fixShadow: function(){
+	fixShadow: function(hide){
 		if (this.shadow){
-			if (this.maximized){
+			this.shadow[(this.maximized ? 'add' : 'remove') + 'Class']('windoo-shadow-' + this.theme.name + '-maximized');
+			if (hide || !this.visible){
 				this.shadow.setStyle('display', 'none');
-			} else if (this.visible){
+			} else {
 				var pos = this.el.getCoordinates(), pad = this.theme.shadowDisplace;
 				this.shadow.setStyles({'display': '', 'zIndex': this.zIndex - 1,
 					'left': this.el.offsetLeft + pad.left, 'top': this.el.offsetTop + pad.top,
@@ -659,7 +661,6 @@ var Windoo = new Class({
 		if (this.$preventClose) return this;
 		if (!this.visible) return this;
 		this.visible = false;
-		if (this.shadow) this.shadow.setStyle('display', 'none');
 		return this.effect('close', noeffect, function(){
 			this.el.setStyle('display', 'none');
 			if (this.modalOverlay) this.modalOverlay.hide();
@@ -894,7 +895,7 @@ Windoo.Themes = {
 		'classPrefix': 'windoo',
 		'ghostClass': 'windoo-ghost windoo-alphacube-ghost windoo-hover',
 		'hoverClass': 'windoo-hover',
-		'shadow': 'simple window-alphacube-shadow-simple',
+		'shadow': 'simple window-shadow-alphacube-simple',
 		'shadeBackground': 'transparent url(windoo/s.gif)',
 		'shadowDisplace': {'left': 3, 'top': 3, 'width': 0, 'height': 0}
 	}
