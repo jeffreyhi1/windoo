@@ -29,7 +29,7 @@ div.windoo-aqua div.windoo-frame .title {
 	font:normal 13px "Sans Serif", Tahoma, Verdana, Helvetica;
 }
 div.windoo-aqua div.windoo-frame .bot-left {
-	padding:0 1px 0 0;
+	padding:0;
 }
 div.windoo-aqua div.windoo-frame .bot-right {
 	padding:0 15px 0 3px;
@@ -111,7 +111,6 @@ div.windoo-aqua-minimized {
 }
 div.windoo-aqua-minimized div.windoo-frame .title {
 	text-align:right;
-	padding:5px 0 0;
 }
 
 div.windoo-aqua-alert-message {
