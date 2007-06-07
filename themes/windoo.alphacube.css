@@ -127,9 +127,12 @@ div.windoo-alphacube-minimized div.windoo-frame .title {
 	padding:5px 0 0;
 }
 
-div.window-alphacube-shadow-simple {
+div.window-shadow-alphacube-simple {
 	-moz-border-radius:12px;
 	border-radius:12px;
+}
+div.windoo-shadow-alphacube-maximized {
+	display:none !important;
 }
 
 div.windoo-alphacube-alert-message {
