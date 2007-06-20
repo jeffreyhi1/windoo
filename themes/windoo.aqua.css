@@ -177,16 +177,12 @@ div.windoo-aqua .windoo-se {
 	width:24px;
 	height:30px;
 	background:transparent url(windoo.aqua/snw.png) no-repeat scroll 0 0;
-	_background:none;
-	filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='themes/windoo.aqua/snw.png',sizingMethod='scale');
 }
 .windoo-shadow-aqua div.top .r {
 	right:0;
 	width:24px;
 	height:30px;
 	background:transparent url(windoo.aqua/sne.png) no-repeat scroll 0 0;
-	_background:none;
-	filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='themes/windoo.aqua/sne.png',sizingMethod='scale');
 }
 .windoo-shadow-aqua div.top .m {
 	position:static;
@@ -194,24 +190,18 @@ div.windoo-aqua .windoo-se {
 	height:30px;
 	margin:0 24px 0 24px;
 	background:transparent url(windoo.aqua/snorth.png) repeat-x scroll 0 0;
-	_background:none;
-	filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='themes/windoo.aqua/snorth.png',sizingMethod='scale');
 }
 .windoo-shadow-aqua div.bot .l {
 	left:0;
 	width:31px;
 	height:24px;
 	background:transparent url(windoo.aqua/ssw.png) no-repeat scroll 0 0;
-	_background:none;
-	filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='themes/windoo.aqua/ssw.png',sizingMethod='scale');
 }
 .windoo-shadow-aqua div.bot .r {
 	right:0;
 	width:31px;
 	height:24px;
 	background:transparent url(windoo.aqua/sse.png) no-repeat scroll 0 0;
-	_background:none;
-	filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='themes/windoo.aqua/sse.png',sizingMethod='scale');
 }
 .windoo-shadow-aqua div.bot .m {
 	position:static;
@@ -219,23 +209,17 @@ div.windoo-aqua .windoo-se {
 	height:24px;
 	margin:0 31px;
 	background:transparent url(windoo.aqua/ssouth.png) repeat-x scroll 0 0;
-	_background:none;
-	filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='themes/windoo.aqua/ssouth.png',sizingMethod='scale');
 }
 .windoo-shadow-aqua div.mid .l {
 	left:0;
 	width:24px;
 	height:100%;
 	background:transparent url(windoo.aqua/swest.png) repeat-y scroll 0 0;
-	_background:none;
-	filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='themes/windoo.aqua/swest.png',sizingMethod='scale');
 }
 .windoo-shadow-aqua div.mid .r {
 	right:0;
 	width:24px;
 	height:100%;
 	background:transparent url(windoo.aqua/seast.png) repeat-y scroll 0 0;
-	_background:none;
-	filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='themes/windoo.aqua/seast.png',sizingMethod='scale');
 }
 
