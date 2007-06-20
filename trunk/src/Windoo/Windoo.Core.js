@@ -330,6 +330,8 @@ var Windoo = new Class({
 				return el.adopt.apply(el, els);
 			};
 			this.shadow.adopt($row('top'), this.dom.shm = $row('mid'), $row('bot'));
+		} else {
+			this.shadow.adopt(new Element('div', {'class': 'c'}));
 		}
 		return this;
 	},
