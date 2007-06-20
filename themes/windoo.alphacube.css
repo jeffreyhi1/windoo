@@ -127,8 +127,10 @@ div.windoo-alphacube-minimized div.windoo-frame .title {
 	padding:5px 0 0;
 }
 
-div.window-shadow-alphacube-simple {
+div.window-shadow-alphacube-simple div.c {
 	-moz-border-radius:12px;
+	-khtml-border-radius:12px;
+	-webkit-border-radius:12px;
 	border-radius:12px;
 }
 div.windoo-shadow-alphacube-maximized {
