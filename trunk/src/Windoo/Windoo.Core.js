@@ -236,7 +236,7 @@ var Windoo = new Class({
 			'class': theme.className,
 			'styles': {
 				'position': this.options.positionStyle,
-				'overflow': 'auto',
+				'overflow': 'hidden',
 				'visibility': 'hidden',
 				'top': this.options.top,
 				'left': this.options.left
