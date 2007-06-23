@@ -37,11 +37,15 @@ div.windoo-aero div.windoo-frame .top-right {
 div.windoo-aero div.windoo-frame .title {
 	background:#AABACA url(windoo.aero/hd-sprite.gif) repeat-x scroll 0 -82px;
 	color:#15428B;
-	text-align:left;
-	padding:7px 25px 5px .5em;
-	line-height:15px;
-	height:15px;
+	height:28px;
+	padding:0 40px 0 .5em;
 	font:bold 13px "Sans Serif", Tahoma, Verdana, Helvetica;
+}
+div.windoo-aero div.windoo-frame .title-text {
+	padding-top:7px;
+	line-height:13px;
+	height:13px;
+	text-align:left;
 }
 div.windoo-aero div.windoo-frame .bot-left {
 	padding:0 0 0 7px;

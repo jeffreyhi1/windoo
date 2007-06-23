@@ -23,10 +23,15 @@ div.windoo-aqua div.windoo-frame .title {
 	background:#fff url(windoo.aqua/north.gif) repeat-x scroll 0 -44px;
 	color:#000;
 	text-align:center;
-	padding:3px 42px 3px;
-	line-height:16px;
-	height:16px;
+	padding:0 0 0 45px;
+	height:22px;
 	font:normal 13px "Sans Serif", Tahoma, Verdana, Helvetica;
+}
+div.windoo-aqua div.windoo-frame .title-text {
+	padding-top:3px;
+	line-height:13px;
+	height:13px;
+	text-align:center;
 }
 div.windoo-aqua div.windoo-frame .bot-left {
 	padding:0;
@@ -110,9 +115,11 @@ div.windoo-aqua-minimized {
 	width:165px !important;
 }
 div.windoo-aqua-minimized div.windoo-frame .title {
-	text-align:right;
+	padding-left:25px;
 }
-
+div.windoo-aqua-minimized div.windoo-frame .title-text {
+	text-align:left;
+}
 div.windoo-aqua-alert-message {
 }
 div.windoo-aqua-confirm-message {
