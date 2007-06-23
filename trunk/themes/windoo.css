@@ -19,10 +19,18 @@ div.windoo div.windoo-frame {
 	height:100%;
 	top:0;
 	left:0;
+	line-height:0;
+}
+div.windoo div.windoo-frame .strut {
+	line-height:0;
+	font-size:0px;
 }
 div.windoo div.windoo-frame .title {
 	overflow:hidden;
-	white-space:nowrap;
+}
+div.windoo div.windoo-frame .title .title-text {
+	width:100%;
+	overflow:hidden;
 }
 
 /* Windoo buttons */

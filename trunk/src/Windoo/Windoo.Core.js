@@ -254,12 +254,15 @@ var Windoo = new Class({
 		this.el.setHTML(innerContent).inject(this.options.container);
 		if (window.ie) this.el.addClass(_p + '-' + theme.name + '-ie');
 
-		var frame = this.el.getFirst(), body = this.el.getLast();
+		var frame = this.el.getFirst(),
+			body = this.el.getLast(),
+			title = frame.getElement('.title'),
+			titleText = new Element('div', {'class': 'title-text'}).inject(title);
 		this.dom = {
 			frame: frame,
 			body: body,
-			title: frame.getElement('.title'),
-			strut: frame.getElement('.strut'),
+			title: titleText,
+			strut: frame.getElement('.strut').setHTML('&nbsp;'),
 			content: iefix ? body.getElement('td') : body
 		};
 		this.dom.title.addEvent('dblclick', this.maximize.bind(this));
