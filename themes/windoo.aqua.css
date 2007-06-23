@@ -136,7 +136,7 @@ div.windoo-aqua-alert-pane input, div.windoo-aqua-confirm-pane input {
 
 /* redefine sizer width/height */
 div.windoo-aqua .windoo-north {
-	height: 2px;
+	height:2px;
 }
 div.windoo-aqua .windoo-east,
 div.windoo-aqua .windoo-west {
@@ -160,6 +160,7 @@ div.windoo-aqua .windoo-se {
 	width:100%;
 	overflow:hidden;
 	line-height:0;
+	font-size:0px;
 }
 .windoo-shadow-aqua div.top {
 	left:0;
@@ -177,21 +178,23 @@ div.windoo-aqua .windoo-se {
 }
 .windoo-shadow-aqua div * {
 	position:absolute;
-	top:0;
 }
 .windoo-shadow-aqua div.top .l {
+	top:0;
 	left:0;
 	width:24px;
 	height:30px;
 	background:transparent url(windoo.aqua/snw.png) no-repeat scroll 0 0;
 }
 .windoo-shadow-aqua div.top .r {
+	top:0;
 	right:0;
 	width:24px;
 	height:30px;
 	background:transparent url(windoo.aqua/sne.png) no-repeat scroll 0 0;
 }
 .windoo-shadow-aqua div.top .m {
+	top:0;
 	position:static;
 	width:auto;
 	height:30px;
@@ -199,18 +202,21 @@ div.windoo-aqua .windoo-se {
 	background:transparent url(windoo.aqua/snorth.png) repeat-x scroll 0 0;
 }
 .windoo-shadow-aqua div.bot .l {
+	bottom:0;
 	left:0;
 	width:31px;
 	height:24px;
 	background:transparent url(windoo.aqua/ssw.png) no-repeat scroll 0 0;
 }
 .windoo-shadow-aqua div.bot .r {
+	bottom:0;
 	right:0;
 	width:31px;
 	height:24px;
 	background:transparent url(windoo.aqua/sse.png) no-repeat scroll 0 0;
 }
 .windoo-shadow-aqua div.bot .m {
+	bottom:0;
 	position:static;
 	width:auto;
 	height:24px;
@@ -218,12 +224,14 @@ div.windoo-aqua .windoo-se {
 	background:transparent url(windoo.aqua/ssouth.png) repeat-x scroll 0 0;
 }
 .windoo-shadow-aqua div.mid .l {
+	bottom:0;
 	left:0;
 	width:24px;
 	height:100%;
 	background:transparent url(windoo.aqua/swest.png) repeat-y scroll 0 0;
 }
 .windoo-shadow-aqua div.mid .r {
+	bottom:0;
 	right:0;
 	width:24px;
 	height:100%;
