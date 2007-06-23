@@ -24,7 +24,7 @@ div.windoo-alphacube div.windoo-frame .title {
 	background:#f2efec url(windoo.alphacube/north.gif) repeat-x scroll 0 -44px;
 	color:#555;
 	height:22px;
-	padding:0 40px 0 15px;
+	padding:0 40px 0 40px;
 	font:bold 13px "Sans Serif", Tahoma, Verdana, Helvetica;
 }
 div.windoo-alphacube div.windoo-frame .title-text {
@@ -126,9 +126,11 @@ div.windoo-alphacube-maximized a.windoo-maximize:hover {
 div.windoo-alphacube-minimized {
 	width:165px !important;
 }
+div.windoo-alphacube-minimized div.windoo-frame .title {
+	padding:0 40px 0 5px;
+}
 div.windoo-alphacube-minimized div.windoo-frame .title-text {
 	text-align:left;
-	padding:5px 0 0;
 }
 
 div.window-shadow-alphacube-simple div.c {
