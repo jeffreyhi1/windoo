@@ -102,6 +102,7 @@ Drag.Resize = new Class({
 		this.element = this.el = $(el);
 		this.fx = {};
 		this.binds = {};
+		this.bound = {};
 		this.setOptions(options);
 		this.options.container = this.options.container === null ? this.el.getParent() : $(this.options.container);
 		if ($type(this.options.direction) == 'string'){
@@ -125,7 +126,7 @@ Drag.Resize = new Class({
 		if (this.options.preserveRatio){
 			var R = ce.width / ce.height;
 			// fix limits according to aspect ratio
-			// FIXME how to process dynamic limits???
+			// FIXME how to process dynamic limits?
 			// border limits do not work well too...
 			var rlim = self.options.resizeLimit;
 			var fix = function(z1, z2, op, no, coeff){
@@ -244,7 +245,7 @@ Drag.Resize = new Class({
 		if ($type(opt.grid) == 'number') opt.grid = {'x': opt.grid, 'y': opt.grid};
 		for (var d in opt.direction){
 			var mod = opt.direction[d];
-			rOpts.handle = new Element('div', {'class': opt.classPrefix + d}).inject(this.el);
+			rOpts.handle = new Element('div', {'class': opt.classPrefix + d});
 			var drag = this.fx[d] = new Drag.Multi(rOpts);
 			var resizeLimit = {
 				'x': rlimitFcn(mod.x, opt.limiter.x['' + mod.x], opt.resizeLimit.x),
@@ -298,14 +299,16 @@ Drag.Resize = new Class({
 			}
 			this.fireEvent('onBuild', [d, binds]);
 		}
-		if (this.options.hoverClass){
-			this.el.addEvent('mouseenter', function(ev){
+		this.bound = (!this.options.hoverClass) ? {} : {
+			'mouseenter': function(ev){
 				this.addClass(self.options.hoverClass);
-			});
-			this.el.addEvent('mouseleave', function(ev){
+			},
+			'mouseleave': function(ev){
 				if(!self.started) this.removeClass(self.options.hoverClass);
-			});
-		}
+			}
+		};
+		this.attach();
+		if (this.options.initialize) this.options.initialize();
 	},
 
 	/*
@@ -319,6 +322,41 @@ Drag.Resize = new Class({
 	add: function(callback){
 		for (var d in this.options.direction)
 			callback.call(this, d, this.binds[d]);
+	},
+
+	/*
+	Property: attach
+		Attach the effect to the element.
+	*/
+
+	attach: function(){
+		$each(this.bound, function(fn, ev){ this.addEvent(ev, fn) }, this.el);
+		for (var z in this.fx) this.element.adopt(this.fx[z].handle);
+		return this;
+	},
+
+	/*
+	Property: detach
+		Detach the effect from the element.
+	*/
+
+	detach: function(){
+		$each(this.bound, function(fn, ev){ this.removeEvent(ev, fn) }, this.el);
+		for (var z in this.fx) this.fx[z].handle.remove();
+		return this;
+	},
+
+	/*
+	Property: stop
+		Stop the effect and collect the garbage.
+	*/
+
+	stop: function(){
+		this.detach();
+		var garbage = [this.ghost];
+		for (var z in this.fx) garbage.push(this.fx[z].handle);
+		Garbage.trash(garbage);
+		this.fx = this.bound = this.binds = {};
 	}
 
 });
