@@ -126,6 +126,7 @@ Windoo.implement({
 		if (this.options.ghost.move) this.ghost = new Element('div', {'class': this.theme.ghostClass, 'styles': {'display': 'none'}}).injectAfter(this.el);
 		this.el.getElements('.' + this.theme.classPrefix + '-drag').each(function(d){
 			opts.handle = d;
+			d.setStyle('cursor', 'move');
 			fx.push((this.ghost || this.el).makeDraggable(opts));
 		}, this);
 	}
