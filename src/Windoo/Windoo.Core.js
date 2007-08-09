@@ -219,6 +219,7 @@ var Windoo = new Class({
 
 		this.wm = this.options.wm || Windoo.$wm;
 		this.wm.register(this);
+		if (this.options.initialize) this.options.initialize.call(this);
 	},
 
 	/*
@@ -256,12 +257,13 @@ var Windoo = new Class({
 
 		var frame = this.el.getFirst(),
 			body = this.el.getLast(),
-			title = frame.getElement('.title'),
-			titleText = new Element('div', {'class': 'title-text'}).inject(title);
+			titleBody = frame.getElement('.title'),
+			titleText = new Element('div', {'class': 'title-text'}).inject(titleBody);
 		this.dom = {
 			frame: frame,
 			body: body,
 			title: titleText,
+			titleBody: titleBody,
 			strut: frame.getElement('.strut').setHTML('&nbsp;'),
 			content: iefix ? body.getElement('td') : body
 		};
@@ -300,7 +302,7 @@ var Windoo = new Class({
 		};
 		makeButton(buttons.close, 'close', 'Close', action('close', this));
 		makeButton(buttons.maximize, 'maximize', 'Maximize', action('maximize', this));
-		if (buttons.maximize) this.dom.title.addEvent('dblclick', this.maximize.bind(this));
+		if (buttons.maximize == true) this.dom.titleBody.addEvent('dblclick', this.maximize.bind(this));
 		makeButton(buttons.minimize, 'minimize', 'Minimize', action(buttons.roll ? 'roll' : 'minimize', this));
 		makeButton(buttons.minimize, 'restore', 'Restore', action('minimize', this));
 		makeButton(buttons.menu, 'menu', 'Menu', action('openmenu', this));
