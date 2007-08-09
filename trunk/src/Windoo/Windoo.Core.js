@@ -265,7 +265,6 @@ var Windoo = new Class({
 			strut: frame.getElement('.strut').setHTML('&nbsp;'),
 			content: iefix ? body.getElement('td') : body
 		};
-		this.dom.title.addEvent('dblclick', this.maximize.bind(this));
 
 		if (this.options.type == 'iframe'){
 			this.dom.iframe = new Element('iframe', {
@@ -301,6 +300,7 @@ var Windoo = new Class({
 		};
 		makeButton(buttons.close, 'close', 'Close', action('close', this));
 		makeButton(buttons.maximize, 'maximize', 'Maximize', action('maximize', this));
+		if (buttons.maximize) this.dom.title.addEvent('dblclick', this.maximize.bind(this));
 		makeButton(buttons.minimize, 'minimize', 'Minimize', action(buttons.roll ? 'roll' : 'minimize', this));
 		makeButton(buttons.minimize, 'restore', 'Restore', action('minimize', this));
 		makeButton(buttons.menu, 'menu', 'Menu', action('openmenu', this));
