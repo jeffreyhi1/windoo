@@ -87,16 +87,17 @@ Example:
 	(end)
 */
 
-Drag.Multi = Drag.Base.extend({
+Drag.Multi = new Class({
+	Extends: Drag,
 
-	options: {
+	/*options: {
 		handle: false,
-		onStart: Class.empty,
-		onBeforeStart: Class.empty,
-		onComplete: Class.empty,
-		onDrag: Class.empty,
+		onStart: $empty,
+		onBeforeStart: $empty,
+		onComplete: $empty,
+		onDrag: $empty,
 		snap: 6
-	},
+	},*/
 
 	elementOptions: {
 		unit: 'px',
@@ -114,13 +115,12 @@ Drag.Multi = Drag.Base.extend({
 		this.mouse = {'start': {}, 'now': {}};
 		this.modifiers = {};
 		this.bound = {
-			'start': this.start.bindWithEvent(this),
-			'check': this.check.bindWithEvent(this),
-			'drag': this.drag.bindWithEvent(this),
+			'start': this.start.bind(this),
+			'check': this.check.bind(this),
+			'drag': this.drag.bind(this),
 			'stop': this.stop.bind(this)
 		};
 		this.attach();
-		if (this.options.initialize) this.options.initialize.call(this);
 	},
 
 	/*
@@ -221,8 +221,10 @@ Drag.Multi = Drag.Base.extend({
 				}
 			}, this);
 		}
-		document.addListener('mousemove', this.bound.check);
-		document.addListener('mouseup', this.bound.stop);
+		document.addEvents({
+			'mousemove': this.bound.check,
+			'mouseup': this.bound.stop
+		});
 		this.fireEvent('onStart', this.element);
 		event.stop();
 	},
