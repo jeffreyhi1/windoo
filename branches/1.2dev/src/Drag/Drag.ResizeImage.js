@@ -14,6 +14,7 @@ Arguments:
 */
 
 Drag.ResizeImage = new Class({
+	Implements: [Events, Options],
 
 	initialize: function(el, options){
 		this.image = $(el);
@@ -36,7 +37,7 @@ Drag.ResizeImage = new Class({
 	stop: function(){
 		this.image.setStyles($merge(this.styles, {'width': this.wrapper.getStyle('width'), 'height': this.wrapper.getStyle('height')})).remove().injectBefore(this.wrapper);
 		this.fx = null;
-		this.wrapper.remove(true);
+		this.wrapper.destroy();
 	}
 
 });

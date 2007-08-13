@@ -12,7 +12,9 @@ Options:
 	window - Windoo object to insert the response text of the XHR into, upon completion of the request.
 */
 
-Windoo.Ajax = Ajax.extend({
+Windoo.Ajax = new Class({
+	Extends: Ajax,
+
 	onComplete: function(){
 		if (this.options.window) this.options.window.setHTML(this.response.text);
 		this.parent();
