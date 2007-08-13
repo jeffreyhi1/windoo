@@ -17,13 +17,15 @@ Options:
 */
 
 Windoo.Manager = new Class({
+	Implements: [Events, Options],
+
 	focused: false,
 	options: {
-		zIndex: 100,
-		onRegister: Class.empty,
-		onUnregister: Class.empty,
-		onFocus: Class.empty,
-		onBlur: Class.empty
+		/*onRegister: $empty,
+		onUnregister: $empty,
+		onFocus: $empty,
+		onBlur: $empty,*/
+		zIndex: 100
 	},
 
 	initialize: function(options){
@@ -102,7 +104,6 @@ Windoo.Manager = new Class({
 	}
 
 });
-Windoo.Manager.implement(new Events, new Options);
 
 /*
 Property: Windoo.$wm

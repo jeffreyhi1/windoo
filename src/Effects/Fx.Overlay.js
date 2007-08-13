@@ -10,6 +10,7 @@ Class: Fx.Overlay
 */
 
 Fx.Overlay = new Class({
+	Implements: Options,
 
 	options: {
 		'styles': {
@@ -34,7 +35,7 @@ Fx.Overlay = new Class({
 		if ([window, $(document.body)].contains(this.element)){
 			this.padding =  Fx.Overlay.windowPadding;
 			this.container = $(document.body);
-			this.element = window;
+			this.element = Client;
 		} else {
 			this.padding = {x: 0, y: 0};
 			this.container = this.element;
@@ -85,27 +86,43 @@ Fx.Overlay = new Class({
 	*/
 
 	destroy: function(){
-		this.overlay.remove(true);
+		this.overlay.destroy();
 		return this;
 	}
 
 });
-Fx.Overlay.implement(new Options);
 Fx.Overlay.windowPadding = (window.ie6) ? {x: 21, y: 4} : {x: 0, y: 0};
 
 
 Element.$overlay = function(hide, deltaZ){
 	deltaZ = $pick(deltaZ, 1);
-	if (!this.fixOverlayElement) this.fixOverlayElement = new Element('iframe', {
-		'properties': {'frameborder': '0', 'scrolling': 'no', 'src': 'javascript:void(0);'},
-		'styles': {'position': this.getStyle('position'), 'border': 'none', 'filter': 'progid:DXImageTransform.Microsoft.Alpha(opacity=0)'}}).injectBefore(this);
+	if (!this.fixOverlayElement){
+		this.fixOverlayElement = new Element('iframe', {
+			'properties': {
+				'frameborder': '0',
+				'scrolling': 'no',
+				'src': 'javascript:void(0);'
+			},
+			'styles': {
+				'position': this.getStyle('position'),
+				'border': 'none',
+				'filter': 'progid:DXImageTransform.Microsoft.Alpha(opacity=0)'
+			}
+		}).injectBefore(this);
+		this.addEvent('trash', this.fixOverlayElement.destroy.bind(this.fixOverlayElement));
+	}
 	if (hide) return this.fixOverlayElement.setStyle('display', 'none');
 	var z = this.getStyle('z-index').toInt() || 0;
 	if (z < deltaZ) this.setStyle('z-index', '' + (z = deltaZ + 1) );
 	var pos = this.getCoordinates();
-	return this.fixOverlayElement.setStyles({'display' : '', 'z-index': '' + (z - deltaZ),
-		'left': pos.left + 'px', 'top': pos.top + 'px',
-		'width': pos.width + 'px', 'height': pos.height + 'px'});
+	return this.fixOverlayElement.setStyles({
+		'display' : '',
+		'z-index': '' + (z - deltaZ),
+		'left': pos.left + 'px',
+		'top': pos.top + 'px',
+		'width': pos.width + 'px',
+		'height': pos.height + 'px'
+	});
 };
 
 /*
@@ -130,19 +147,11 @@ Element.extend({
 	/*
 	Property: remove
 		Removes the Element from the DOM. Also removes overlay element if present.
-
-	Arguments:
-		trash - if true empties the element and collects it from garbage.
 	*/
 
-	remove: function(trash){
-		if (this.fixOverlayElement){
-			this.fixOverlayElement.remove();
-			if (trash){ Garbage.trash([this.fixOverlayElement]); }
-		}
-		this.parentNode.removeChild(this);
-		if (trash){ Garbage.trash([this.empty()]); return false; }
-		return this;
+	remove: function(){
+		if (this.fixOverlayElement) this.fixOverlayElement.remove();
+		return this.parentNode.removeChild(this);
 	}
 
 });
