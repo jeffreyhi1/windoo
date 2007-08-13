@@ -121,6 +121,24 @@ Example:
 
 var Windoo = new Class({
 	options: {
+		/*onFocus: $empty,
+		onBlur: $empty,
+		onClose: $empty,
+		onDestroy: $empty,
+		onHide: $empty,
+		onShow: $empty,
+		onMaximize: $empty,
+		onMinimize: $empty,
+		onRestore: $empty,
+		onBeforeDrag: $empty,
+		onStartDrag: $empty,
+		onDrag: $empty,
+		onDragComplete: $empty,
+		onBeforeResize: $empty,
+		onStartResize: $empty,
+		onResize: $empty,
+		onResizeComplete: $empty,*/
+
 		type: 'dom',
 		url: false,
 		title: 'Windoo!',
@@ -164,28 +182,11 @@ var Windoo = new Class({
 				options: {'duration': 600},
 				styles: {'opacity': [1, 0]}
 			}
-		},
-		onFocus: Class.empty,
-		onBlur: Class.empty,
-		onClose: Class.empty,
-		onDestroy: Class.empty,
-		onHide: Class.empty,
-		onShow: Class.empty,
-		onMaximize: Class.empty,
-		onMinimize: Class.empty,
-		onRestore: Class.empty,
-		onBeforeDrag: Class.empty,
-		onStartDrag: Class.empty,
-		onDrag: Class.empty,
-		onDragComplete: Class.empty,
-		onBeforeResize: Class.empty,
-		onStartResize: Class.empty,
-		onResize: Class.empty,
-		onResizeComplete: Class.empty
+		}
 	},
 
-	makeResizable: Class.empty,
-	makeDraggable: Class.empty,
+	makeResizable: $empty,
+	makeDraggable: $empty,
 
 	initialize: function(options){
 		var self = this;
@@ -219,7 +220,6 @@ var Windoo = new Class({
 
 		this.wm = this.options.wm || Windoo.$wm;
 		this.wm.register(this);
-		if (this.options.initialize) this.options.initialize.call(this);
 	},
 
 	/*
@@ -290,8 +290,8 @@ var Windoo = new Class({
 
 	buildButtons: function(){
 		var self = this, buttons = this.options.buttons, _p = this.theme.classPrefix;
-		var action = function(name, bind){ return function(ev){ new Event(ev).stop(); (bind[name])(); }; };
-		this.bound.noaction = function(ev){ new Event(ev).stop(); };
+		var action = function(name, bind){ return function(event){ event.stop(); (bind[name])(); }; };
+		this.bound.noaction = function(event){ event.stop(); };
 		var makeButton = function(opt, name, title, action){
 			self.bound[name] = action;
 			if (opt){
@@ -685,8 +685,8 @@ var Windoo = new Class({
 		this.fireEvent('onDestroy');
 		this.wm.unregister(this);
 		if (this.modalOverlay) this.modalOverlay.destroy();
-		if (this.shadow) this.shadow.remove(true);
-		this.el.remove(true);
+		if (this.shadow) this.shadow.destroy();
+		this.el.destroy();
 		for (var z in this) this[z] = null;
 		this.destroyed = true;
 	},
@@ -871,7 +871,6 @@ var Windoo = new Class({
 		return this.setZIndex(this.wm.maxZIndex());
 	}
 });
-Windoo.implement(new Events, new Options);
 Windoo.ieTableCell = '<table style="position:absolute;top:0;left:0;border:none;border-collapse:collapse;padding:0;"><tr><td style="border:none;overflow:auto;position:relative;padding:0;"></td></tr></table>';
 
 /*

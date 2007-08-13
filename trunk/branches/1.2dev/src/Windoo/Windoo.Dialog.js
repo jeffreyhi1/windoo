@@ -42,12 +42,11 @@ Windoo.Dialog = Windoo.extend({
 				if (dialog.buttons.ok) dialog.buttons.ok.focus();
 			}
 		}, dialog.options.window));
-		dialog.bound = function(ev){
-			ev = new Event(ev);
-			if (['enter', 'esc'].contains(ev.key)){
-				dialog.result = (ev.key == 'enter') ? !dialog.cancelFocused : false;
+		dialog.bound = function(event){
+			if (['enter', 'esc'].contains(event.key)){
+				dialog.result = (event.key == 'enter') ? !dialog.cancelFocused : false;
 				self.close();
-				ev.stop();
+				event.stop();
 			}
 		};
 		document.addEvent('keydown', dialog.bound);
@@ -115,8 +114,8 @@ Windoo.Dialog.options = {
 	},
 	'panel': null,
 	'message': null,
-	'onConfirm': Class.empty,
-	'onCancel': Class.empty
+	'onConfirm': $empty,
+	'onCancel': $empty
 };
 
 /*

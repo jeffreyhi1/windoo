@@ -64,8 +64,16 @@ Events:
 */
 
 Drag.Resize = new Class({
+	Implements: [Events, Options],
 
-	options:{
+	options: {
+		/*onBuild: $empty,
+		onBeforeStart: $empty,
+		onStart: $empty,
+		onSnap: $empty,
+		onResize: $empty,
+		onComplete: $empty,*/
+
 		zIndex: 10000,
 		moveLimit: false,
 		resizeLimit: {'x': [0], 'y': [0]},
@@ -87,14 +95,7 @@ Drag.Resize = new Class({
 		ghostClass: 'ghost-sizer sizer-visible',
 		classPrefix: 'sizer sizer-',
 		hoverClass: 'sizer-visible',
-		shadeBackground: 'transparent url(s.gif)',
-
-		onBuild: Class.empty,
-		onBeforeStart: Class.empty,
-		onStart: Class.empty,
-		onSnap: Class.empty,
-		onResize: Class.empty,
-		onComplete: Class.empty
+		shadeBackground: 'transparent url(s.gif)'
 	},
 
 	initialize: function(el, options){
@@ -300,10 +301,10 @@ Drag.Resize = new Class({
 			this.fireEvent('onBuild', [d, binds]);
 		}
 		this.bound = (!this.options.hoverClass) ? {} : {
-			'mouseenter': function(ev){
+			'mouseenter': function(){
 				this.addClass(self.options.hoverClass);
 			},
-			'mouseleave': function(ev){
+			'mouseleave': function(){
 				if(!self.started) this.removeClass(self.options.hoverClass);
 			}
 		};
@@ -353,14 +354,12 @@ Drag.Resize = new Class({
 
 	stop: function(){
 		this.detach();
-		var garbage = [this.ghost];
-		for (var z in this.fx) garbage.push(this.fx[z].handle);
-		Garbage.trash(garbage);
+		this.ghost.destroy();
+		for (var z in this.fx) this.fx[z].handle.destroy();
 		this.fx = this.bound = this.binds = {};
 	}
 
 });
-Drag.Resize.implement(new Events, new Options);
 
 /*
 Class: Element
