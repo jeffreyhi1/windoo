@@ -120,6 +120,8 @@ Example:
 */
 
 var Windoo = new Class({
+	Implements: [Options, Events],
+
 	options: {
 		/*onFocus: $empty,
 		onBlur: $empty,
