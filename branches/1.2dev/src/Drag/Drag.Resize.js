@@ -17,7 +17,7 @@ Drag.Multi.$direction = {
 
 /*
 Class: Drag.Resize
-	Extends <Drag.Base>, has additional functionality for resizing an element into 8 direction.
+	Extends <Drag>, has additional functionality for resizing an element into 8 direction.
 
 Arguments:
 	el - the $(element) to apply the resize to.
@@ -366,20 +366,20 @@ Class: Element
 	Custom class to allow all of its methods to be used with any DOM element via the dollar function <$>.
 */
 
-Element.extend({
+Element.implement({
 
 	/*
 	Property: makeResizable
 		Makes an element resizable (by dragging) with the supplied options.
 
 	Arguments:
-		options - see <Drag.Resize> and <Drag.Base> for acceptable options. Falls back to <Drag.Base> if handle options set.
+		options - see <Drag.Resize> and <Drag> for acceptable options. Falls back to <Drag> if handle options set.
 	*/
 
 	makeResizable: function(options){
 		options = options || {};
 		if (options.handle)
-			return new Drag.Base(this, $merge({modifiers: {'x': 'width', 'y': 'height'}}, options));
+			return new Drag(this, $merge({modifiers: {'x': 'width', 'y': 'height'}}, options));
 		return new Drag.Resize(this, options);
 	}
 

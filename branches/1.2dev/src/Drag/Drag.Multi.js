@@ -1,6 +1,6 @@
 /*
 Script: Drag.Multi.js
-	Mootools Drag.Base class extension which adds support for modifying multiple css properties of different elements simultaneously.
+	Mootools Drag class extension which adds support for modifying multiple css properties of different elements simultaneously.
 	Contains <Drag.Multi>.
 
 License:
@@ -111,6 +111,7 @@ Drag.Multi = new Class({
 	initialize: function(options){
 		this.setOptions(options);
 		this.handle = $(this.options.handle);
+		this.document = this.handle.ownerDocument;
 		this.element = [];
 		this.mouse = {'start': {}, 'now': {}};
 		this.modifiers = {};

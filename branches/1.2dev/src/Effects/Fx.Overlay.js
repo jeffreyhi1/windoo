@@ -32,10 +32,10 @@ Fx.Overlay = new Class({
 	initialize: function(element, props, tag){
 		this.element = $(element);
 		this.setOptions(props);
-		if ([window, $(document.body)].contains(this.element)){
+		if ([$(window), $(document.body)].contains(this.element)){
 			this.padding =  Fx.Overlay.windowPadding;
 			this.container = $(document.body);
-			this.element = Client;
+			this.element = Window;
 		} else {
 			this.padding = {x: 0, y: 0};
 			this.container = this.element;
@@ -91,7 +91,7 @@ Fx.Overlay = new Class({
 	}
 
 });
-Fx.Overlay.windowPadding = (window.ie6) ? {x: 21, y: 4} : {x: 0, y: 0};
+Fx.Overlay.windowPadding = (Client.Engine.ie6) ? {x: 21, y: 4} : {x: 0, y: 0};
 
 
 Element.$overlay = function(hide, deltaZ){
@@ -109,7 +109,9 @@ Element.$overlay = function(hide, deltaZ){
 				'filter': 'progid:DXImageTransform.Microsoft.Alpha(opacity=0)'
 			}
 		}).injectBefore(this);
-		this.addEvent('trash', this.fixOverlayElement.destroy.bind(this.fixOverlayElement));
+		this.addEvent('trash', function(){
+			if (this.fixOverlayElement && this.fixOverlayElement.parentNode == this) this.fixOverlayElement.destroy();
+		}, this);
 	}
 	if (hide) return this.fixOverlayElement.setStyle('display', 'none');
 	var z = this.getStyle('z-index').toInt() || 0;
@@ -130,7 +132,7 @@ Class: Element
 	Custom class to allow all of its methods to be used with any DOM element via the dollar function <$>.
 */
 
-Element.extend({
+Element.implement({
 
 	/*
 	Property: fixOverlay
@@ -142,7 +144,7 @@ Element.extend({
 		deltaZ - optional, (overlay z-index) = (element z-index) - deltaZ. defaults to 1.
 	*/
 
-	fixOverlay: window.ie6 ? Element.$overlay : function(){ return false; },
+	fixOverlay: Client.Engine.ie6 ? Element.$overlay : function(){ return false; },
 
 	/*
 	Property: remove

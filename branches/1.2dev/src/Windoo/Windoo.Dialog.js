@@ -28,7 +28,9 @@ Events:
 
 */
 
-Windoo.Dialog = Windoo.extend({
+Windoo.Dialog = new Class({
+
+	Extends: Windoo,
 
 	initialize: function(message, options){
 		var self = this, dialog = this.dialog = {
@@ -128,7 +130,9 @@ Arguments:
 	options - Windoo.Dialog options object.
 */
 
-Windoo.Alert = Windoo.Dialog.extend({
+Windoo.Alert = new Class({
+
+	Extends: Windoo.Dialog,
 
 	initialize: function(message,  options){
 		this.parent(message,  options);
@@ -148,7 +152,9 @@ Arguments:
 
 */
 
-Windoo.Confirm = Windoo.Dialog.extend({
+Windoo.Confirm = new Class({
+
+	Extends: Windoo.Dialog,
 
 	initialize: function(message,  options){
 		this.parent(message,  options);
