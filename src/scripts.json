@@ -10,7 +10,7 @@
 	"Drag": {
 		"Drag.Multi": {
 			deps: [],
-			desc: "Contains Drag.Base extension which adds support for modifying multiple css properties of different elements simultaneously."
+			desc: "Contains Drag class extension which adds support for modifying multiple css properties of different elements simultaneously."
 		},
 		"Drag.Resize": {
 			deps: ["Drag.Multi", "Fx.Overlay"],

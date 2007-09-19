@@ -36,7 +36,7 @@ Windoo.implement({
 				if (self.maximized){
 					fx.stop();
 				} else {
-					if (!this.ghost && window.gecko) Element.$overlay.call(fx.shade.overlay);
+					if (!this.ghost && Client.Engine.gecko) Element.$overlay.call(fx.shade.overlay);
 					self.fireEvent('onStartResize', this);
 				}
 			},
@@ -96,7 +96,7 @@ Windoo.implement({
 						'width': ce.x,
 						'height': ce.y
 					});
-				} else if (window.gecko){
+				} else if (Client.Engine.gecko){
 					Element.$overlay.call(this.shade.overlay, false, 2);
 				}
 				self.fireEvent('onBeforeDrag', this);
