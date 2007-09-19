@@ -1,21 +1,4 @@
 
-Json.toString=function(obj){
-	switch ($type(obj)){
-		case 'string':
-			return '"'+obj.replace(new RegExp('(["\\\\])', 'g'), '\\$1').replace(/\n/g,"\\n").replace(/\r/g,"\\r").replace(/\t/g,"\\t")+'"';
-		case 'array':
-			return '['+ obj.map(function(ar){
-				return Json.toString(ar);
-			}).join(',') +']';
-		case 'object':
-		case 'class':
-			var string = [];
-			for (var property in obj) string.push('"'+property+'":'+Json.toString(obj[property]));
-			return '{'+string.join(',')+'}';
-	}
-	return String(obj);
-};
-
 Json.format=function(obj, tab){
 	tab = $pick(tab, '');
 	var tab2 = tab+'\t';
@@ -31,11 +14,7 @@ String.prototype.encodeTags = function(){
 	return this.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 };
 
-
-
-
 /////////////////////////
-
 
 
 Windoo.Options = {
