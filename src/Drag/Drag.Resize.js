@@ -354,7 +354,7 @@ Drag.Resize = new Class({
 
 	stop: function(){
 		this.detach();
-		this.ghost.destroy();
+		if (this.ghost) this.ghost.destroy();
 		for (var z in this.fx) this.fx[z].handle.destroy();
 		this.fx = this.bound = this.binds = {};
 	}

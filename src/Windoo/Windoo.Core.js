@@ -200,27 +200,27 @@ var Windoo = new Class({
 		this.visible = false;
 
 		this.options.id = 'windoo-' + (new Date().getTime());
-		this.setOptions(options);
-		var theme = this.theme = $type(this.options.theme) == 'string' ? Windoo.Themes[this.options.theme] : this.options.theme;
-		this.options.container = $(this.options.container || document.body);
-		for (var side in theme.padding) this.padding[side] = theme.padding[side] + this.options.padding[side];
+		this.setOptions(options); options = this.options;
+		var theme = this.theme = $type(options.theme) == 'string' ? Windoo.Themes[options.theme] : options.theme;
+		options.container = $(options.container || document.body);
+		for (var side in theme.padding) this.padding[side] = theme.padding[side] + options.padding[side];
 
 		['x', 'y'].each(function(z){
-			var lim = this.options.resizeLimit;
+			var lim = options.resizeLimit;
 			if ($type(lim[z][0]) == 'number') lim[z][0] = Math.max(lim[z][0], theme.resizeLimit[z][0])
 		}, this);
 
 		this.buildDOM()
-			.setSize(this.options.width, this.options.height)
-			.setTitle(this.options.title)
+			.setSize(options.width, options.height)
+			.setTitle(options.title)
 			.fix();
-		if (this.options.position == 'center') this.positionAtCenter();
 
 		this.minimized = false;
-		if(this.options.draggable) this.makeDraggable();
-		if(this.options.resizable) this.makeResizable();
+		if (options.draggable) this.makeDraggable();
+		if (options.resizable) this.makeResizable();
+		if (options.position == 'center') this.positionAtCenter();
 
-		this.wm = this.options.wm || Windoo.$wm;
+		this.wm = options.wm || Windoo.$wm;
 		this.wm.register(this);
 	},
 
@@ -472,11 +472,16 @@ var Windoo = new Class({
 	*/
 
 	effect: function(name, noeffect, onComplete){
-		opts = {onComplete: onComplete};
+		var fx = this.options.effects[name],
+			elements = [fx.el || this.el],
+			styles = {"0": fx.styles};
+		if (this.shadow){
+			elements.push(this.shadow);
+			styles["1"] = fx.styles;
+		}
+		var opts = {onComplete: onComplete};
 		if (noeffect) opts.duration = 0;
-		var fx = this.options.effects[name];
-		new Fx.Styles(fx.el || this.el, $merge(fx.options, opts)).start(fx.styles);
-		if (this.shadow) new Fx.Styles(this.shadow, fx.options).start(fx.styles);
+		new Fx.Elements(elements, $merge(fx.options, opts)).start(styles);
 		return this;
 	},
 
@@ -516,9 +521,9 @@ var Windoo = new Class({
 		if (this.visible) return this;
 		this.visible = true;
 		if (this.modalOverlay) this.modalOverlay.show();
+		if (this.shadow) this.shadow.setStyle('visibility', 'hidden');
 		this.el.setStyle('display', '');
 		this.bringTop().fix();
-		if (this.shadow) this.shadow.setStyle('visibility', 'hidden');
 		return this.effect('show', noeffect, function(){
 			this.el.setStyle('visibility', 'visible');
 			this.fireEvent('onShow').fix();
@@ -688,6 +693,8 @@ var Windoo = new Class({
 		this.wm.unregister(this);
 		if (this.modalOverlay) this.modalOverlay.destroy();
 		if (this.shadow) this.shadow.destroy();
+		if (this.ghost) this.ghost.destroy();
+		if (this.fx.resize) this.fx.resize.stop();
 		this.el.destroy();
 		for (var z in this) this[z] = null;
 		this.destroyed = true;
