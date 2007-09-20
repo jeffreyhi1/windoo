@@ -154,6 +154,12 @@ Element.implement({
 	remove: function(){
 		if (this.fixOverlayElement) this.fixOverlayElement.remove();
 		return this.parentNode.removeChild(this);
+	},
+
+	destroy: function(){
+		if (this.parentNode) this.remove();
+		Garbage.kill(this.empty());
+		return null;
 	}
 
 });
