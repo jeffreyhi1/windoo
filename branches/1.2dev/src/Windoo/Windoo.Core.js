@@ -252,10 +252,10 @@ var Windoo = new Class({
 		if (this.options['class']) this.el.addClass(this.options['class']);
 
 		var $row = function(prefix, contentClass){ return '<div class="' + prefix + '-left ' + _p + '-drag"><div class="' + prefix + '-right"><div class="' + contentClass + '"></div></div></div>'; };
-		var iefix = Client.Engine.ie && this.options.type != 'iframe',
+		var iefix = Client.Engine.trident && this.options.type != 'iframe',
 			innerContent = '<div class="' + _p + '-frame">' + $row("top", "title") + $row("bot", "strut") + '</div><div class="' + _p + '-body">' + (iefix ? Windoo.ieTableCell : '') + '</div>';
 		this.el.setHTML(innerContent).inject(this.options.container);
-		if (Client.Engine.ie) this.el.addClass(_p + '-' + theme.name + '-ie');
+		if (Client.Engine.trident) this.el.addClass(_p + '-' + theme.name + '-ie');
 
 		var frame = this.el.getFirst(),
 			body = this.el.getLast(),

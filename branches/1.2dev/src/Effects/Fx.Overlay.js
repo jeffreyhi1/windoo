@@ -91,7 +91,7 @@ Fx.Overlay = new Class({
 	}
 
 });
-Fx.Overlay.windowPadding = (Client.Engine.ie6) ? {x: 21, y: 4} : {x: 0, y: 0};
+Fx.Overlay.windowPadding = (Client.Engine.trident4) ? {x: 21, y: 4} : {x: 0, y: 0};
 
 
 Element.$overlay = function(hide, deltaZ){
@@ -144,7 +144,7 @@ Element.implement({
 		deltaZ - optional, (overlay z-index) = (element z-index) - deltaZ. defaults to 1.
 	*/
 
-	fixOverlay: Client.Engine.ie6 ? Element.$overlay : function(){ return false; },
+	fixOverlay: Client.Engine.trident4 ? Element.$overlay : function(){ return false; },
 
 	/*
 	Property: remove
