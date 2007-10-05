@@ -880,7 +880,7 @@ var Windoo = new Class({
 		return this.setZIndex(this.wm.maxZIndex());
 	}
 });
-Windoo.ieTableCell = '<table style="position:absolute;top:0;left:0;border:none;border-collapse:collapse;padding:0;"><tr><td style="border:none;overflow:auto;position:relative;padding:0;"></td></tr></table>';
+Windoo.ieTableCell = '<table style="position:absolute;top:0;left:0;border:none;border-collapse:collapse;padding:0;"><tr><td style="border:none;overflow:auto;position:relative;padding:0;width:100%;height:100%;"></td></tr></table>';
 
 /*
 Class: Windoo.Themes
