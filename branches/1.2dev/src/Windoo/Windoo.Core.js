@@ -252,10 +252,10 @@ var Windoo = new Class({
 		if (this.options['class']) this.el.addClass(this.options['class']);
 
 		var $row = function(prefix, contentClass){ return '<div class="' + prefix + '-left ' + _p + '-drag"><div class="' + prefix + '-right"><div class="' + contentClass + '"></div></div></div>'; };
-		var iefix = Client.Engine.trident && this.options.type != 'iframe',
+		var iefix = Browser.Engine.trident && this.options.type != 'iframe',
 			innerContent = '<div class="' + _p + '-frame">' + $row("top", "title") + $row("bot", "strut") + '</div><div class="' + _p + '-body">' + (iefix ? Windoo.ieTableCell : '') + '</div>';
-		this.el.setHTML(innerContent).inject(this.options.container);
-		if (Client.Engine.trident) this.el.addClass(_p + '-' + theme.name + '-ie');
+		this.el.set('html',innerContent).inject(this.options.container);
+		if (Browser.Engine.trident) this.el.addClass(_p + '-' + theme.name + '-ie');
 
 		var frame = this.el.getFirst(),
 			body = this.el.getLast(),
@@ -266,7 +266,7 @@ var Windoo = new Class({
 			body: body,
 			title: titleText,
 			titleBody: titleBody,
-			strut: frame.getElement('.strut').setHTML('&nbsp;'),
+			strut: frame.getElement('.strut').set('html','&nbsp;'),
 			content: iefix ? body.getElement('td') : body
 		};
 
@@ -298,7 +298,7 @@ var Windoo = new Class({
 			self.bound[name] = action;
 			if (opt){
 				var klass = _p + '-button ' + _p + '-' + name + ( opt == 'disabled' ? ' ' + _p + '-' + name + '-disabled' : '' );
-				self.dom[name] = new Element('a', {'class': klass, 'href': '#', 'title': title}).setHTML('x').inject(self.el);
+				self.dom[name] = new Element('a', {'class': klass, 'href': '#', 'title': title}).set('html','x').inject(self.el);
 				self.dom[name].addEvent('click', opt == 'disabled' ? self.bound.noaction : action);
 			}
 		};
@@ -355,7 +355,7 @@ var Windoo = new Class({
 	*/
 
 	setHTML: function(content){
-		if (!this.dom.iframe) this.dom.content.empty().setHTML(content);
+		if (!this.dom.iframe) this.dom.content.empty().set('html',content);
 		return this;
 	},
 
@@ -395,7 +395,7 @@ var Windoo = new Class({
 		var styles = {'margin': '0', 'position': 'static'};
 		el = $(el);
 		options = options || {};
-		var size = el.getSize().size, pos = el.getPosition(), coeff = options.ignorePadding ? 0 : 1, pad = this.padding;
+		var size = el.getSize().offset, pos = el.getPosition(), coeff = options.ignorePadding ? 0 : 1, pad = this.padding;
 		this.setSize(size.x + coeff * (pad.right + pad.left), size.y + coeff * (pad.top + pad.bottom));
 		if (options.resetWidth) styles.width = 'auto';
 		if (options.position) this.setPosition(pos.x - coeff * pad.left, pos.y - coeff * pad.top);
@@ -454,7 +454,7 @@ var Windoo = new Class({
 	*/
 
 	setTitle: function(title){
-		this.dom.title.setHTML(title || '&nbsp;');
+		this.dom.title.set('html',title || '&nbsp;');
 		return this;
 	},
 
@@ -625,8 +625,8 @@ var Windoo = new Class({
 		offset = $merge({'x': 0, 'y': 0}, offset);
 		var container = this.options.container;
 		if (container === document.body) container = window;
-		var s = container.getSize(), esize = this.el.getSize().size,
-			fn = function(z){ return Math.max(0, offset[z] + s.scroll[z] + (s.size[z] - esize[z])/2); };
+		var s = container.getSize(), esize = this.el.getSize().offset,
+			fn = function(z){ return Math.max(0, offset[z] + container.getScroll()[z] + (s.offset[z] - esize[z])/2); };
 		this.el.setStyles({'left': fn('x'), 'top': fn('y')});
 		return this.fix();
 	},
@@ -732,10 +732,10 @@ var Windoo = new Class({
 			var container = this.options.container;
 			if (container === document.body) container = window;
 			var s = container.getSize(), limit = this.options.resizeLimit;
-			if (limit) for (var z in limit) s.size[z] = bound(s.size[z], limit[z]);
+			if (limit) for (var z in limit) s.offset[z] = bound(s.offset[z], limit[z]);
 			this.el.addClass(klass);
-			this.setSize(s.size.x, s.size.y)
-				.setPosition(s.scroll.x, s.scroll.y)
+			this.setSize(s.offset.x, s.offset.y)
+				.setPosition(container.getScroll().x, container.getScroll().y)
 				.fireEvent('onMaximize');
 		} else {
 			this.el.removeClass(klass);
@@ -765,7 +765,7 @@ var Windoo = new Class({
 			var s = container.getSize(), height = this.theme.padding.top + this.theme.padding.bottom;
 			this.el.addClass(klass);
 			this.setSize('auto', height)
-				.setPosition(s.scroll.x + 10, s.scroll.y + s.size.y - height - 10)
+				.setPosition(container.getScroll().x + 10, container.getScroll().y + s.offset.y - height - 10)
 				.fireEvent('onMinimize');
 		} else {
 			this.el.removeClass(klass);
@@ -916,4 +916,4 @@ Windoo.Themes = {
 	}
 };
 
-if (Client.Engine.gecko && navigator.appVersion.indexOf('acintosh') >= 0) window.addEvent('domready', function(){ new Element('style', {'type': 'text/css', 'media': 'all'}).inject(document.head).appendText(Windoo.Themes.cssFirefoxMac); });
+if (Browser.Engine.gecko && navigator.appVersion.indexOf('acintosh') >= 0) window.addEvent('domready', function(){ new Element('style', {'type': 'text/css', 'media': 'all'}).inject(document.head).appendText(Windoo.Themes.cssFirefoxMac); });

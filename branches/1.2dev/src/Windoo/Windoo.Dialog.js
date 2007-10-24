@@ -86,7 +86,7 @@ Windoo.Dialog = new Class({
 		dialog.dom.panel = new Element('div', $merge({'class': this.classPrefix(klass + '-pane')}, dialog.options.panel));
 		for (var btn in buttons) if (buttons[btn]) dialog.dom.panel.adopt(dialog.buttons[btn]);
 		dialog.dom.message = new Element('div', $merge({'class': this.classPrefix(klass + '-message')}, dialog.options.message));
-		return this.addPanel(dialog.dom.panel).adopt(dialog.dom.message.setHTML(dialog.message));
+		return this.addPanel(dialog.dom.panel).adopt(dialog.dom.message.set('html',dialog.message));
 	}
 
 });

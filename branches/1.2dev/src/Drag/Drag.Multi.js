@@ -45,7 +45,7 @@ Example:
 		handle: $('handle'),
 		
 		onBeforeStart: function(){
-			var size = $(document.body).getSize().scrollSize;
+			var size = $(document.body).getSize().scroll;
 			this.shade = new Element('div', {
 				styles: {
 					position: 'absolute',
