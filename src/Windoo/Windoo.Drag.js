@@ -36,7 +36,7 @@ Windoo.implement({
 				if (self.maximized){
 					fx.stop();
 				} else {
-					if (!this.ghost && Client.Engine.gecko) Element.$overlay.call(fx.shade.overlay);
+					if (!this.ghost && Browser.Engine.gecko) Element.$overlay.call(fx.shade.overlay);
 					self.fireEvent('onStartResize', this);
 				}
 			},
@@ -88,7 +88,7 @@ Windoo.implement({
 					'zIndex': self.zIndex + 3
 				}}).show();
 				if (self.ghost){
-					var ce = self.el.getSize().size;
+					var ce = self.el.getSize().offset;
 					this.element.setStyles({
 						'zIndex': self.zIndex + 3,
 						'left': self.el.getStyle('left'),
@@ -96,7 +96,7 @@ Windoo.implement({
 						'width': ce.x,
 						'height': ce.y
 					});
-				} else if (Client.Engine.gecko){
+				} else if (Browser.Engine.gecko){
 					Element.$overlay.call(this.shade.overlay, false, 2);
 				}
 				self.fireEvent('onBeforeDrag', this);

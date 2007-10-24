@@ -64,8 +64,8 @@ Fx.Overlay = new Class({
 
 	update: function(props){
 		this.overlay.set($merge(this.options, {'styles': {
-			width: this.element.getSize().scrollSize.x - this.padding.x,
-			height: this.element.getSize().scrollSize.y - this.padding.y
+			width: this.element.getSize().scroll.x - this.padding.x,
+			height: this.element.getSize().scroll.y - this.padding.y
 		}}, props));
 		return this;
 	},
@@ -91,7 +91,7 @@ Fx.Overlay = new Class({
 	}
 
 });
-Fx.Overlay.windowPadding = (Client.Engine.trident4) ? {x: 21, y: 4} : {x: 0, y: 0};
+Fx.Overlay.windowPadding = (Browser.Engine.trident4) ? {x: 21, y: 4} : {x: 0, y: 0};
 
 
 Element.$overlay = function(hide, deltaZ){
@@ -144,7 +144,7 @@ Element.implement({
 		deltaZ - optional, (overlay z-index) = (element z-index) - deltaZ. defaults to 1.
 	*/
 
-	fixOverlay: Client.Engine.trident4 ? Element.$overlay : function(){ return false; },
+	fixOverlay: Browser.Engine.trident4 ? Element.$overlay : function(){ return false; },
 
 	/*
 	Property: remove

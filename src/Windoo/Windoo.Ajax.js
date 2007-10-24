@@ -16,7 +16,7 @@ Windoo.Ajax = new Class({
 	Extends: Ajax,
 
 	onComplete: function(){
-		if (this.options.window) this.options.window.setHTML(this.response.text);
+		if (this.options.window) this.options.window.set('html',this.response.text);
 		this.parent();
 	}
 });
