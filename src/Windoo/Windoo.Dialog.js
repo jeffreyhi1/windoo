@@ -67,7 +67,7 @@ Windoo.Dialog = new Class({
 					self.close();
 				}
 			}
-		}, dialog.options.buttons.ok));
+		}, dialog.options.buttons.ok.properties));
 		if ('cancel' in buttons) dialog.buttons.cancel = new Element('input', $merge({
 			'events': {
 				'click': function(){
@@ -75,7 +75,7 @@ Windoo.Dialog = new Class({
 					self.close();
 				}
 			}
-		}, dialog.options.buttons.cancel)).addEvents({
+		}, dialog.options.buttons.cancel.properties)).addEvents({
 			'focus': function(){
 				dialog.cancelFocused = true;
 			},
