@@ -329,7 +329,7 @@ var Windoo = new Class({
 				'display': 'none'
 			},
 			'class': theme.classPrefix + '-shadow-' + theme.shadow
-		}).injectAfter(this.el);
+		}).inject(this.el,'after');
 		if (theme.complexShadow){
 			var $row = function(name){
 				var els = ['l', 'r', 'm'].map(function(e){ return new Element('div', {'class': e}); });

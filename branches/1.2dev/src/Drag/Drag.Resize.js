@@ -146,7 +146,7 @@ Drag.Resize = new Class({
 			['nw','ne','sw','se'].each(function(z){ delete this[z]; }, this.options.direction);
 		}
 		if (this.options.ghost){
-			this.ghost = new Element('div', {'class': this.options.ghostClass, 'styles': {'display': 'none'}}).injectAfter(this.el);
+			this.ghost = new Element('div', {'class': this.options.ghostClass, 'styles': {'display': 'none'}}).inject(this.el,'after');
 			for (var d in this.options.direction) this.ghost.adopt(new Element('div', {'class': this.options.classPrefix + d}));
 		}
 		var rOpts = {

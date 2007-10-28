@@ -108,7 +108,7 @@ Element.$overlay = function(hide, deltaZ){
 				'border': 'none',
 				'filter': 'progid:DXImageTransform.Microsoft.Alpha(opacity=0)'
 			}
-		}).injectBefore(this);
+		}).inject(this,'before');
 		this.addEvent('trash', function(){
 			if (this.fixOverlayElement && this.fixOverlayElement.parentNode == this) this.fixOverlayElement.destroy();
 		}, this);
