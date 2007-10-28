@@ -23,7 +23,7 @@ Drag.ResizeImage = new Class({
 		this.wrapper = new Element('div', {'styles': $merge(this.styles, {
 			'width': this.image.offsetWidth,
 			'height': this.image.offsetHeight
-		})}).injectBefore(this.image).adopt(
+		})}).inject(this.image,'before').adopt(
 			this.image.remove().setStyles({'position': 'absolute', 'top':'0', 'left':'0', 'margin':'0', 'width': '100%', 'height': '100%', 'zIndex': '0'})
 		);
 		this.fx = new Drag.Resize(this.wrapper, $merge({'preserveRatio': true}, options));
@@ -35,7 +35,7 @@ Drag.ResizeImage = new Class({
 	*/
 
 	stop: function(){
-		this.image.setStyles($merge(this.styles, {'width': this.wrapper.getStyle('width'), 'height': this.wrapper.getStyle('height')})).remove().injectBefore(this.wrapper);
+		this.image.setStyles($merge(this.styles, {'width': this.wrapper.getStyle('width'), 'height': this.wrapper.getStyle('height')})).remove().inject(this.wrapper,'before');
 		this.fx = null;
 		this.wrapper.destroy();
 	}
