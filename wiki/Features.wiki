@@ -1,5 +1,8 @@
-#summary Drag.Multi, Drag.Resize, Windoo extension features.
 #labels Featured,Phase-Design
+=Heading1=
+1.2 branch is now the supported branch for ongoing development.
+
+#summary Drag.Multi, Drag.Resize, Windoo extension features.
 
  * resizable in 8 directions (fully customizable)
  * works on Firefox, Opera, Safari, and IE 6, 7
