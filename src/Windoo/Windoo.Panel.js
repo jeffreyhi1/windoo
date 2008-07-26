@@ -21,7 +21,7 @@ Windoo.implement({
 	addPanel: function(element, position){
 		position = $pick(position, 'bottom');
 		var dim, ndim,
-			size = this.el.getSize().offset,
+			size = this.el.getSize(),
 			styles = {'position': 'absolute'},
 			panel = {'element': $(element), 'position': position, 'fx': []};
 		switch (position){
@@ -35,7 +35,7 @@ Windoo.implement({
 		styles[position] = this.padding[position];
 		styles[options.deltaP] = this.padding[options.deltaP];
 		element = panel.element.addClass(this.classPrefix('pane')).setStyles(styles).inject(this.el);
-		panel.padding = element.getSize().offset[ndim];
+		panel.padding = element.getSize()[ndim];
 		this.padding[position] += panel.padding;
 		if (this.options.resizable && !this.options.ghost.resize){
 			this.fx.resize.add(function(dir, binds){
@@ -51,7 +51,7 @@ Windoo.implement({
 			});
 		}
 		this.addEvent('onResizeComplete', function(){
-			panel.element.setStyle(options.style, this.el.getSize().offset[dim] - this.padding[options.deltaM] - this.padding[options.deltaP] - 1);
+			panel.element.setStyle(options.style, this.el.getSize()[dim] - this.padding[options.deltaM] - this.padding[options.deltaP] - 1);
 		});
 		this.panels.push(panel);
 		return this.setSize(size.x, size.y);
@@ -78,7 +78,7 @@ Windoo.implement({
 				panel.element.destroy();
 				panel.fx.each(function(pfx){ pfx.fx.detach(pfx.bind); }, this);
 				this.panels.splice(i, 1);
-				size = this.el.getSize().offset;
+				size = this.el.getSize();
 				this.setSize(size.x, size.y);
 				break;
 			}

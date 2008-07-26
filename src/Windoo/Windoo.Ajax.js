@@ -6,14 +6,14 @@ Script: Windoo.Ajax.js
 
 /*
 Class: Windoo.Ajax
-	Extended <Ajax> class to update window content.
+	Extended <Request> class to update window content.
 
 Options:
 	window - Windoo object to insert the response text of the XHR into, upon completion of the request.
 */
 
 Windoo.Ajax = new Class({
-	Extends: Ajax,
+	Extends: Request,
 
 	onComplete: function(){
 		if (this.options.window) this.options.window.set('html',this.response.text);

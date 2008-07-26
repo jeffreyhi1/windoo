@@ -88,7 +88,7 @@ Windoo.implement({
 					'zIndex': self.zIndex + 3
 				}}).show();
 				if (self.ghost){
-					var ce = self.el.getSize().offset;
+					var ce = self.el.getSize();
 					this.element.setStyles({
 						'zIndex': self.zIndex + 3,
 						'left': self.el.getStyle('left'),

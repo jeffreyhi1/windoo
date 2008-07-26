@@ -45,7 +45,7 @@ Example:
 		handle: $('handle'),
 		
 		onBeforeStart: function(){
-			var size = $(document.body).getSize().scroll;
+			var size = $(document.body).getScrollSize();
 			this.shade = new Element('div', {
 				styles: {
 					position: 'absolute',
@@ -121,6 +121,12 @@ Drag.Multi = new Class({
 			'drag': this.drag.bind(this),
 			'stop': this.stop.bind(this)
 		};
+		
+		// added for 1.2 compatibility (Scott)
+		var htype = $type(this.options.handle);
+		this.handles = (htype == 'array' || htype == 'collection') ? $$(this.options.handle) : $(this.options.handle) || this.element;
+		// end - added for 1.2 compatibility (Scott)
+		
 		this.attach();
 	},
 

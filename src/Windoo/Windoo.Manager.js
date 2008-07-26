@@ -64,7 +64,7 @@ Windoo.Manager = new Class({
 	*/
 
 	unregister: function(win){
-		this.hash.remove(win);
+		this.hash.erase(win);
 		if (this.focused === win) this.focused = false;
 		return this.fireEvent('onUnregister', win);
 	},
@@ -78,8 +78,9 @@ Windoo.Manager = new Class({
 	*/
 
 	focus: function(win){
-		var idx = this.hash.indexOf(win);
-		if (idx === this.focused) return this;
+//		var idx = this.hash.indexOf(win);
+//		if (idx === this.focused) return this;
+		if (win === this.focused) return this;  // focus fix reported by gfrymer
 		if (this.focused) this.focused.blur();
 		this.focused = win;
 		win.bringTop(this.maxZIndex());
