@@ -395,7 +395,7 @@ var Windoo = new Class({
 		var styles = {'margin': '0', 'position': 'static'};
 		el = $(el);
 		options = options || {};
-		var size = el.getSize().offset, pos = el.getPosition(), coeff = options.ignorePadding ? 0 : 1, pad = this.padding;
+		var size = el.getSize(), pos = el.getPosition(), coeff = options.ignorePadding ? 0 : 1, pad = this.padding;
 		this.setSize(size.x + coeff * (pad.right + pad.left), size.y + coeff * (pad.top + pad.bottom));
 		if (options.resetWidth) styles.width = 'auto';
 		if (options.position) this.setPosition(pos.x - coeff * pad.left, pos.y - coeff * pad.top);
@@ -625,8 +625,8 @@ var Windoo = new Class({
 		offset = $merge({'x': 0, 'y': 0}, offset);
 		var container = this.options.container;
 		if (container === document.body) container = window;
-		var s = container.getSize(), esize = this.el.getSize().offset,
-			fn = function(z){ return Math.max(0, offset[z] + container.getScroll()[z] + (s.offset[z] - esize[z])/2); };
+		var s = container.getSize(), esize = this.el.getSize(),
+			fn = function(z){ return Math.max(0, offset[z] + container.getScroll()[z] + (s[z] - esize[z])/2); };
 		this.el.setStyles({'left': fn('x'), 'top': fn('y')});
 		return this.fix();
 	},
@@ -732,9 +732,9 @@ var Windoo = new Class({
 			var container = this.options.container;
 			if (container === document.body) container = window;
 			var s = container.getSize(), limit = this.options.resizeLimit;
-			if (limit) for (var z in limit) s.offset[z] = bound(s.offset[z], limit[z]);
+			if (limit) for (var z in limit) s[z] = bound(s[z], limit[z]);
 			this.el.addClass(klass);
-			this.setSize(s.offset.x, s.offset.y)
+			this.setSize(s.x, s.y)
 				.setPosition(container.getScroll().x, container.getScroll().y)
 				.fireEvent('onMaximize');
 		} else {
@@ -765,7 +765,7 @@ var Windoo = new Class({
 			var s = container.getSize(), height = this.theme.padding.top + this.theme.padding.bottom;
 			this.el.addClass(klass);
 			this.setSize('auto', height)
-				.setPosition(container.getScroll().x + 10, container.getScroll().y + s.offset.y - height - 10)
+				.setPosition(container.getScroll().x + 10, container.getScroll().y + s.y - height - 10)
 				.fireEvent('onMinimize');
 		} else {
 			this.el.removeClass(klass);

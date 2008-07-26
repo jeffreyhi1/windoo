@@ -64,8 +64,8 @@ Fx.Overlay = new Class({
 
 	update: function(props){
 		this.overlay.set($merge(this.options, {'styles': {
-			width: this.element.getSize().scroll.x - this.padding.x,
-			height: this.element.getSize().scroll.y - this.padding.y
+			width: this.element.getScrollSize().x - this.padding.x,
+			height: this.element.getScrollSize().y - this.padding.y
 		}}, props));
 		return this;
 	},
@@ -158,7 +158,7 @@ Element.implement({
 
 	destroy: function(){
 		if (this.parentNode) this.remove();
-		Garbage.kill(this.empty());
+		Browser.freeMem(this.empty());
 		return null;
 	}
 
